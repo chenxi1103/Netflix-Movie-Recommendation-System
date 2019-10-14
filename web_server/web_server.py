@@ -1,6 +1,6 @@
 import sys
 from flask import Flask
-from learning_model import Model
+from RecommendModule import Model
 app = Flask(__name__)
 
 @app.route("/")

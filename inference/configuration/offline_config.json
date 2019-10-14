@@ -1,11 +1,20 @@
 {
   "exp-1":{
     "MODEL_NAME":"SVD",
-    "FEATURE_PATH":"/Users/yangzhouyi/Desktop/17645/Assignment/HW6G3/17645TeamA/inference/data/feature_store/usermovie.csv",
-    "TEST_FEATURE_PATH":"/Users/yangzhouyi/Desktop/17645/Assignment/HW6G3/17645TeamA/inference/data/feature_store/usermovie.csv",
-    "MODEL_PATH":"/Users/yangzhouyi/Desktop/17645/Assignment/HW6G3/17645TeamA/inference/data/model/",
+    "FEATURE_PATH":"/inference/feature/usermovie.csv",
+    "TEST_FEATURE_PATH":"/inference/feature/usermovie.csv",
+    "MODEL_PATH":"/inference/trained_model/",
     "TOP_RECOMMEND_RESULT_NUM":10,
     "HYPER_PARAMETER":{},
     "DESCRIPTION":"The first Experiment"
+  },
+  "exp-2":{
+    "MODEL_NAME":"SVD",
+    "FEATURE_PATH":"/inference/feature/usermovie.csv",
+    "TEST_FEATURE_PATH":"/inference/feature/usermovie.csv",
+    "MODEL_PATH":"/inference/trained_model/",
+    "TOP_RECOMMEND_RESULT_NUM":5,
+    "HYPER_PARAMETER":{},
+    "DESCRIPTION":"The second Experiment"
   }
 }
