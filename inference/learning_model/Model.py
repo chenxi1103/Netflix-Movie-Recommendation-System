@@ -15,6 +15,7 @@ from surprise import CoClustering
 from collections import defaultdict
 import os
 import json
+import pickle
 
 """
 This class uses model-base model (SVD, MF ..) to recommend movies
@@ -26,15 +27,17 @@ class ModelBasedModel:
     def __init__(self, ConfigPath, ExpName):
         self.MODEL_NAME = "MODEL_NAME"
         self.FEATURE_PATH = "FEATURE_PATH"
+        self.TEST_FEATURE_PATH = "TEST_FEATURE_PATH"
         self.MODEL_DICT = {"KNNBasic": KNNBasic(), "KNNWithMeans": KNNWithMeans(),
                            "KNNWithZScore": KNNWithZScore(), "SVD": SVD(),
                            "SVDpp": SVDpp(), "NMF": NMF(),
                            "SlopeOne": SlopeOne(), "CoClustering": CoClustering()}
         self.TOP_RECOMMEND_RESULT_NUM = "TOP_RECOMMEND_RESULT_NUM"
-
-        self.trainset = None
+        self.MODEL_PATH = "MODEL_PATH"
+        self.HYPER_PARAMETER = "HYPER_PARAMETER"
+        self.ExpName = ExpName
+        self.trainset, self.testset = None, None
         self.config = self.loadConfig(os.path.expanduser(ConfigPath), ExpName)
-        print(self.config)
         self.model = self.MODEL_DICT[self.config[self.MODEL_NAME]]
 
     def loadConfig(self, filePath, ExpName):
@@ -46,30 +49,61 @@ class ModelBasedModel:
         config = d[ExpName]
         return config
 
-    def loadFeature(self):
+    def loadFeature(self, dataset_type):
         reader = Reader(line_format='user item rating', sep=',')
-        data = Dataset.load_from_file(self.config[self.FEATURE_PATH], reader=reader)
-        #TODO change to complete set
-        self.trainset, _ = train_test_split(data, test_size=0.1)
-
-    def loadModel(self):
-        pass
+        if dataset_type == "TRAIN":
+            filePath = self.config[self.FEATURE_PATH]
+            data = Dataset.load_from_file(filePath, reader=reader)
+            self.trainset = data.build_full_trainset()
+        elif dataset_type == "EVALUATION":
+            filePath = self.config[self.TEST_FEATURE_PATH]
+            data = Dataset.load_from_file(filePath, reader=reader)
+            self.testset = data.build_full_trainset()
+        else:
+            raise AttributeError
 
     def saveModel(self):
-        pass
+        dirname = self.config[self.MODEL_PATH] + self.ExpName
+        if not os.path.exists(dirname):
+            os.mkdir(dirname)
+        filePath = dirname + '/model.pkl'
+        with open(filePath, 'wb') as fp:
+            pickle.dump(self.model, fp)
+
+    def loadModel(self):
+        dirname = self.config[self.MODEL_PATH] + self.ExpName
+        filePath = dirname + '/model.pkl'
+        with open(filePath, 'rb') as fp:
+            self.model = pickle.load(fp)
 
     def predictForEachUser(self, userId):
-        pred = self.model.test(self.trainset)
+        self.loadFeature("TRAIN")
+        pred = self.model.test(self.trainset.build_testset())
         topn = self.get_top_n(pred, self.config[self.TOP_RECOMMEND_RESULT_NUM])
         return topn[userId]
 
     def train(self):
-        self.loadFeature()
-        print(self.trainset)
+        self.loadFeature("TRAIN")
         self.model.fit(self.trainset)
 
     def evaluation(self):
-        pass
+        self.loadFeature("EVALUATION")
+        predictions = self.model.test(self.testset.build_testset())
+        evaluation_k, evaluation_threshold = 5, 4
+        precisions, recalls = self.precision_recall_at_k(predictions, k=evaluation_k, threshold=evaluation_threshold)
+        # Precision and recall can then be averaged over all users
+        precision = sum(prec for prec in precisions.values()) / len(precisions)
+        recall = sum(rec for rec in recalls.values()) / len(recalls)
+        print(precision, recall)
+        dirname = self.config[self.MODEL_PATH] + self.ExpName
+        filePath = dirname + '/evaluation_result.txt'
+        with open(filePath, 'w') as fp:
+            fp.write("ModelType: %s \n" % self.config[self.MODEL_NAME])
+            fp.write("HyperParameter: %s\n" % json.dumps(self.config[self.HYPER_PARAMETER]))
+            fp.write("evaluation_k: %d\n" % evaluation_k)
+            fp.write("evaluation_threshold: %d\n" % evaluation_threshold)
+            fp.write("Precision: %f \n" % precision)
+            fp.write("Recall: %f \n" % recall)
 
     '''
     Return the top-N recommendation for each user from a set of predictions.
