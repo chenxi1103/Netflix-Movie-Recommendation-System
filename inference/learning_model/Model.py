@@ -14,6 +14,7 @@ from surprise import CoClustering
 
 from collections import defaultdict
 import os
+import json
 
 """
 This class uses model-base model (SVD, MF ..) to recommend movies
@@ -22,9 +23,9 @@ This class uses model-base model (SVD, MF ..) to recommend movies
 
 class ModelBasedModel:
 
-    def __init__(self, ConfigPath):
+    def __init__(self, ConfigPath, ExpName):
         self.MODEL_NAME = "MODEL_NAME"
-        self.TRAIN_DATA_PATH = "TRAIN_DATA_PATH"
+        self.FEATURE_PATH = "FEATURE_PATH"
         self.MODEL_DICT = {"KNNBasic": KNNBasic(), "KNNWithMeans": KNNWithMeans(),
                            "KNNWithZScore": KNNWithZScore(), "SVD": SVD(),
                            "SVDpp": SVDpp(), "NMF": NMF(),
@@ -32,21 +33,29 @@ class ModelBasedModel:
         self.TOP_RECOMMEND_RESULT_NUM = "TOP_RECOMMEND_RESULT_NUM"
 
         self.trainset = None
-        self.config = self.loadConfig(os.path.expanduser(ConfigPath))
+        self.config = self.loadConfig(os.path.expanduser(ConfigPath), ExpName)
+        print(self.config)
         self.model = self.MODEL_DICT[self.config[self.MODEL_NAME]]
 
-    def loadConfig(self, filePath):
-        config = {}
+    def loadConfig(self, filePath, ExpName):
+        d = {}
+        with open(filePath) as fp:
+            d = json.load(fp)
+        if ExpName not in d:
+            raise AttributeError
+        config = d[ExpName]
         return config
 
-    def loadFeature(self, filePath):
+    def loadFeature(self):
         reader = Reader(line_format='user item rating', sep=',')
-        self.trainset = Dataset.load_from_file(filePath, reader=reader)
+        data = Dataset.load_from_file(self.config[self.FEATURE_PATH], reader=reader)
+        #TODO change to complete set
+        self.trainset, _ = train_test_split(data, test_size=0.1)
 
-    def loadModel(self, filePath):
+    def loadModel(self):
         pass
 
-    def saveModel(self, filePath):
+    def saveModel(self):
         pass
 
     def predictForEachUser(self, userId):
@@ -55,8 +64,12 @@ class ModelBasedModel:
         return topn[userId]
 
     def train(self):
-        self.loadFeature(self.config[self.TRAIN_DATA_PATH])
+        self.loadFeature()
+        print(self.trainset)
         self.model.fit(self.trainset)
+
+    def evaluation(self):
+        pass
 
     '''
     Return the top-N recommendation for each user from a set of predictions.
