@@ -10,7 +10,6 @@ def hello():
 
 @app.route('/recommend/<user_id>')
 def inference(user_id):
-    dic[userid] +=1
     return str(m.predictForEachUser(str(user_id)))
 
 if __name__ == "__main__":
