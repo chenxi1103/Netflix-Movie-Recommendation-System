@@ -12,7 +12,7 @@ def show_movie_table():
     for x in movie_table.find():
         print(x)
         counter = counter + 1
-        if counter > 100:
+        if counter > 10:
             break
 
 def show_user_table():
@@ -20,7 +20,7 @@ def show_user_table():
     for x in user_table.find():
         print(x)
         counter = counter + 1
-        if counter > 100:
+        if counter > 10:
             break
 
 
@@ -28,7 +28,7 @@ def show_watch_table():
     counter = 0
     for x in stream_watch_table.find():
         counter = counter + 1
-        if counter < 100:
+        if counter < 10:
             print(x)
     print("watch table length: ", counter)
 
@@ -36,10 +36,10 @@ def show_watch_table():
 def show_rate_table():
     counter = 0
     for x in stream_rate_table.find():
-        print(x)
         counter = counter + 1
-        if counter > 100:
-            break
+        if counter < 10:
+            print(x)
+    print("rate table length: ", counter)
 
 
 if __name__ == '__main__':
