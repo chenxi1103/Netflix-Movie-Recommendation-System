@@ -31,7 +31,7 @@ def extract_user_movie_score():
     if (count > total * THRESHOLD):
         # Do something. Such as sending emails to all developers.
         print("Warning: Possible data schema change or too much missing data")
-    df = pd.DataFrame.from_dict(d)
+    df = pd.DataFrame.from_dict(d).drop_duplicates(keep='last')
     
     file_name = 'user_movie_score_' + str(int(time.time())) + '.csv'
     df.to_csv(os.path.join(sys.path[0], 'data', file_name))
