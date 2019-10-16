@@ -3,7 +3,6 @@ import time
 import os
 import sys
 import json
-# import random
 
 import utils.mongodb_client as mongodb_client
 
@@ -24,8 +23,6 @@ def extract_user_movie_score():
         total += 1
         try:
             user_id, movie_id, score = int(record['user_id']), int(record['movie_id']), int(record['score'])
-            # if (random.random() > 0.4):
-            #     raise ValueError
         except:
             print("Something wrong with a line of MongoDB data.")
             print(record)
