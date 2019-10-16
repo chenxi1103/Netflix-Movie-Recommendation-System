@@ -13,12 +13,14 @@ movie_table = mongodb_client.get_movie_table()
 user_table = mongodb_client.get_user_table()
 stream_watch_table = mongodb_client.get_watch_table()
 stream_rate_table = mongodb_client.get_rate_table()
+daily_watch_table = mongodb_client.get_daily_watch_table()
 
 
 def query_kafka():
     for msg in consumer:
         print(msg.value)
         parse_msg_value(msg.value)
+
 
 def kafka_stream_validation(msg):
     data = str(msg).split(',')
@@ -60,6 +62,18 @@ def write_watch_data(movie_id, query_time, user_id, chunk_num):
         if tmdb_id and str(tmdb_id).isdigit():
             stream_watch_data = construct_watch_data(query_time, user_id, movie_id, tmdb_id, chunk_num)
             stream_watch_table.insert_one(stream_watch_data)
+        else:
+            raise AttributeError("tmdb_id for {0} does not exists or not digits.".format(movie_id))
+
+
+def write_daily_summary_watch_data(movie_id, query_time, user_id):
+    query = {"id": movie_id}
+    if movie_table.find_one(query):
+        tmdb_id = movie_table.find_one(query)['tmdb_id']
+        if tmdb_id and str(tmdb_id).isdigit():
+            query = {"user_id": user_id, "movie_id": tmdb_id}
+            if daily_watch_table.find_one(query) is None:
+                daily_watch_table.insert_one({"user_id": user_id, "movie_id": tmdb_id, "query_time": query_time})
         else:
             raise AttributeError("tmdb_id for {0} does not exists or not digits.".format(movie_id))
 
@@ -148,6 +162,7 @@ def parse_msg_value(msg):
                 chunk_num = parse_chunk_number(datainfo[4])
                 write_movie_info(movie_id)
                 write_watch_data(movie_id, query_time, user_id, chunk_num)
+                write_daily_summary_watch_data(movie_id, query_time, user_id)
             elif type == "rate":
                 movie_id = extract_movie_id_and_rate(datainfo[2])[0]
                 rate = int(extract_movie_id_and_rate(datainfo[2])[1])
@@ -156,8 +171,6 @@ def parse_msg_value(msg):
     except AttributeError as error:
         print(error)
         return
-
-
 
 
 def construct_watch_data(query_time, user_id, movie_name, movie_id, chunk_num):
@@ -202,6 +215,7 @@ def query_user_api(user_id):
             return requests.get(USER_API + user_id).json()
     except:
         raise AttributeError("API error! Result is not valid JSON format.")
+
 
 if __name__ == '__main__':
     query_kafka()
