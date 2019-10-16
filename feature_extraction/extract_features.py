@@ -28,6 +28,7 @@ def extract_user_movie_score():
             #     raise ValueError
         except:
             print("Something wrong with a line of MongoDB data.")
+            print(record)
             count += 1
         else:
             d['user_id'].append(user_id)
