@@ -1,0 +1,29 @@
+{
+  "OFFLINE": {
+    "offl-exp-1": {
+      "MODEL_NAME": "SVD",
+      "FEATURE_PATH": "/inference/feature/usermovie.csv",
+      "TEST_FEATURE_PATH": "/inference/feature/usermovie.csv",
+      "MODEL_PATH": "/inference/trained_model/",
+      "TOP_RECOMMEND_RESULT_NUM": 10,
+      "HYPER_PARAMETER": {},
+      "DESCRIPTION": "The first Experiment"
+    },
+    "offl-exp-2": {
+      "MODEL_NAME": "SVD",
+      "FEATURE_PATH": "/inference/feature/usermovie.csv",
+      "TEST_FEATURE_PATH": "/inference/feature/usermovie.csv",
+      "MODEL_PATH": "/inference/trained_model/",
+      "TOP_RECOMMEND_RESULT_NUM": 5,
+      "HYPER_PARAMETER": {},
+      "DESCRIPTION": "The second Experiment"
+    }
+  },
+  "ONLINE":{
+
+  },
+  "CONTENT_CONFIG":{
+    "REC_NUM":20,
+    "CONTENT_FEATURE_PATH":"/inference/feature/moviefeature.csv"
+  }
+}

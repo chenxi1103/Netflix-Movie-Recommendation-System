@@ -1,6 +1,5 @@
 from surprise import Dataset
 from surprise import Reader
-from surprise.model_selection import cross_validate
 
 from surprise import KNNBasic
 from surprise import KNNWithMeans
@@ -15,6 +14,7 @@ from collections import defaultdict
 import os
 import json
 import pickle
+import ContentBaseModel
 
 """
 This class uses model-base model (SVD, MF ..) to recommend movies
@@ -23,7 +23,7 @@ This class uses model-base model (SVD, MF ..) to recommend movies
 
 class ModelBasedModel:
 
-    def __init__(self, MainDirPath, ConfigPath, ExpName):
+    def __init__(self, MainDir, ExpName):
         self.MODEL_NAME = "MODEL_NAME"
         self.FEATURE_PATH = "FEATURE_PATH"
         self.TEST_FEATURE_PATH = "TEST_FEATURE_PATH"
@@ -34,20 +34,42 @@ class ModelBasedModel:
         self.TOP_RECOMMEND_RESULT_NUM = "TOP_RECOMMEND_RESULT_NUM"
         self.MODEL_PATH = "MODEL_PATH"
         self.HYPER_PARAMETER = "HYPER_PARAMETER"
-        self.MAIN_DIR_PATH = MainDirPath
+        self.ONLINE_EXP_TYPE = "ONLINE"
+        self.OFFLINE_EXP_TYPE = "OFFLINE"
+        self.CONFIG_RELATIVE_PATH = "/inference/configuration/config.json"
+
+        self.CONTENT_CONFIG = "CONTENT_CONFIG"
+        self.REC_NUM = "REC_NUM"
+        self.CONTENT_FEATURE_PATH = "CONTENT_FEATURE_PATH"
+
+        self.MAIN_DIR_PATH = MainDir
         self.ExpName = ExpName
+        self.ExpType = None
         self.trainset, self.testset = None, None
-        self.config = self.loadConfig(os.path.expanduser(ConfigPath), ExpName)
+        self.loadConfig(self.MAIN_DIR_PATH + self.CONFIG_RELATIVE_PATH, ExpName)
         self.model = self.MODEL_DICT[self.config[self.MODEL_NAME]]
+        self.contentModel = ContentBaseModel.ContentModel(self.content_config[self.REC_NUM],
+                                self.MAIN_DIR_PATH +self.content_config[ self.CONTENT_FEATURE_PATH])
 
     def loadConfig(self, filePath, ExpName):
         d = {}
-        with open(filePath) as fp:
-            d = json.load(fp)
-        if ExpName not in d:
-            raise AttributeError
-        config = d[ExpName]
-        return config
+        if ExpName.startswith("ol-"):
+            self.exp_type = self.ONLINE_EXP_TYPE
+        elif ExpName.startswith("offl-"):
+            self.exp_type = self.OFFLINE_EXP_TYPE
+        else:
+            raise AttributeError("Error ExpName Format")
+
+        try:
+            with open(filePath) as fp:
+                d = json.load(fp)
+        except:
+            raise AttributeError("Error Config File Path:%s" % filePath)
+
+        if ExpName not in d[self.exp_type]:
+            raise AttributeError("Error Experiment Name")
+        self.config = d[self.exp_type][ExpName]
+        self.content_config = d[self.CONTENT_CONFIG]
 
     def loadFeature(self, dataset_type):
         reader = Reader(line_format='user item rating', sep=',')
@@ -96,7 +118,7 @@ class ModelBasedModel:
         recall = sum(rec for rec in recalls.values()) / len(recalls)
         print(precision, recall)
         dirname = self.config[self.MODEL_PATH] + self.ExpName
-        filePath = self.MAIN_DIR_PATH+ dirname + '/evaluation_result.txt'
+        filePath = self.MAIN_DIR_PATH + dirname + '/evaluation_result.txt'
         with open(filePath, 'w') as fp:
             fp.write("ModelType: %s \n" % self.config[self.MODEL_NAME])
             fp.write("HyperParameter: %s\n" % json.dumps(self.config[self.HYPER_PARAMETER]))
@@ -132,40 +154,6 @@ class ModelBasedModel:
         return top_n
 
     """
-    This function predicts the RMSE of predicted movie rating
-    """
-
-    def EvaluateRMSEwithCrossValidation(self):
-        algo = self.model
-        cross_validate(algo, self.trainset, measures=['RMSE', 'MAE'], cv=5, verbose=True)
-
-    """
-    This function predicts the RMSE of predicted movie rating
-    """
-
-    def EvaluatePrecisionRecallwithRating(self):
-        algo = self.model
-        algo.fit(self.trainset)
-        print(dir(algo))
-        predictions = algo.test(self.testset)
-        # for pred in predictions:
-        #    print("prediction:", pred)
-        topn = self.get_top_n(predictions)
-        precisions, recalls = self.precision_recall_at_k(predictions, k=5, threshold=3)
-        # Precision and recall can then be averaged over all users
-        print(sum(prec for prec in precisions.values()) / len(precisions))
-        print(sum(rec for rec in recalls.values()) / len(recalls))
-
-    def EvaluatePrecisionRecallwithHitNum(self):
-        algo = self.model
-        algo.fit(self.trainset)
-        predictions = algo.test(self.testset)
-        precisions, recalls = self.precision_recall_by_hit_num(predictions, self.testset)
-        # Precision and recall can then be averaged over all users
-        print(sum(prec for prec in precisions.values()) / len(precisions))
-        print(sum(rec for rec in recalls.values()) / len(recalls))
-
-    """
     This function calculates the precision and recall
     It considers the recommended movie that has an actual rating that is higher than a threshold as relevent
     This function is from official suprise website https://surprise.readthedocs.io/en/stable/FAQ.html
@@ -197,45 +185,6 @@ class ModelBasedModel:
 
         return precisions, recalls
 
-    """
-    This function calculates the precision and recall
-    It considers the recommended movie that is in the user's watchlist as relevant
-    This function is from official suprise website https://surprise.readthedocs.io/en/stable/FAQ.html
-    """
-
-    def precision_recall_by_hit_num(self, predictions, testset):
-        # Todo Edit Later
-        # First map the predictions to each user.
-        user_est_true = defaultdict(list)
-        for uid, movieId, true_r, est, _ in predictions:
-            user_est_true[uid].append((est, true_r, movieId))
-
-        precisions = dict()
-        recalls = dict()
-        user2TestMovieID = defaultdict(dict)
-        user2RecMovieId = defaultdict(dict)
-
-        for (userId, movieId, rate) in testset:
-            user2TestMovieID[userId][movieId] = rate
-
-        for uid, movieId, true_r, est, _ in predictions:
-            user2RecMovieId[uid][movieId] = est
-
-        hitNum = 0
-        relevantMovieNum = 0
-        recommenMovieNum = 0
-        for uid in user2TestMovieID:
-            testMovieList = user2TestMovieID[uid]
-            recMovieList = user2RecMovieId[uid]
-            relevantMovieNum += len(testMovieList)
-            recommenMovieNum += len(recMovieList)
-            hitNum = len(set(testMovieList).intersection(set(recMovieList)))
-
-        precisions[0] = hitNum / (1.0 * recommenMovieNum)
-        recalls[0] = hitNum / (1.0 * relevantMovieNum)
-
-        return precisions, recalls
-
 
 if __name__ == '__main__':
-    pass
+    m = ModelBasedModel("a","c")
