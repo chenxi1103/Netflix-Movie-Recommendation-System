@@ -44,7 +44,7 @@ def main():
     df = extract_user_movie_score()
     df_dedup = df.drop_duplicates(subset=['user_id', 'movie_id', 'score'] ,keep='last')
     file_name = 'user_movie_score_' + str(int(time.time())) + '.csv'
-    df_dedup.to_csv(os.path.join(config['model_output_dir'], file_name))
+    df_dedup.to_csv(os.path.join(config['model_output_dir'], file_name), index=False)
 
 if __name__ == '__main__':
     main()
