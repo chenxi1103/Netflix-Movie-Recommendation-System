@@ -1,4 +1,21 @@
 # 17645TeamA
+## Code Structure Overview
+
+Our recommendation system consists of five modules. 
+
+**KafkaProcessingModule** receives, processes Kafka stream and stores data in MongoDB.
+
+**FeatureExtractionModule** retrieves, transforms data from MongoDB according to FeatureExtractionConfig to features. Then it stores the features in the FeatureStoreFolder. 
+
+The above two models inspect the data format or semantic to ensure data quality. 
+
+**Offline Recommend Training Module** retrieves feature from feature store folder and trains the model. It also evaluates the model performance offline and stores the model with evaluation results in model management folder. The hyperparameter or model path are all configured in offline training configuration.  
+
+**Online prediction module** provides online recommendation results given userid. It is within webserver and responds to external API. It loads and manages trained model according to the online deployment configuration. 
+
+**Production Test module** obtains data from both Kafka stream and Online Prediction Module. 
+
+All five models are tested for infrastructure quality. 
 
 ## Data Quality
 To ensure data is absolutely clean before it can be used to train the model, we do “double check” data cleaning both in “Kafka streaming” part and “feature extraction” part. <br>
