@@ -2,20 +2,20 @@ import sys
 import mongodb_client
 import csv
 
-def summary_table(file_name, date):
-    db = mongodb_client.get_former_table(date)
-    with open(file_name, 'w') as file:
-        csv_write = csv.writer(file)
-        csv_head = ["user_id", "count"]
-        csv_write.writerow(csv_head)
-        for item in db.find():
-            row_data = []
-            row_data.append(item["user_id"])
-            row_data.append(item["count"])
-            csv_write.writerow(row_data)
+
+def get_daily_query_data(date):
+    table = mongodb_client.get_former_query_table(date)
+    result = []
+    for item in table.find():
+        result.append(item)
+    return result
+
+def get_daily_watch_data(date):
+    table = mongodb_client.get_daily_summary_watch_table(date)
+    result = []
+    for item in table.find():
+        result.append(item)
+    return result
 
 if __name__ == '__main__':
-    root = '/home/teama/17645TeamA/test_in_production/daily_query_summary/'
-    date = sys.argv[1]
-    file_name = root + date + ".csv"
-    summary_table(file_name, date)
+    print(get_daily_watch_data(sys.argv[2]))

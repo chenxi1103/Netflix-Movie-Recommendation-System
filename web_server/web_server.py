@@ -6,31 +6,43 @@ sys.path.append('../inference/RecommendModule')
 sys.path.append('../kafka_mongodb_process')
 from RecommendModule import Model
 import mongodb_client
+from time import gmtime, strftime
 
 app = Flask(__name__)
-table = mongodb_client.get_table()
+table = mongodb_client.get_today_query_table()
 
 @app.route("/")
 def hello():
-    return "<h1 style='color:blue'>Hello There!</h1>"
+    return "<h1 style='color:blue'>Hi there! This is 17-645 Team A!</h1>"
 
 @app.route('/recommend/<user_id>')
 def inference(user_id):
-    update_table(user_id)
     recommend_res = m.predictForEachUser(str(user_id))
     if not recommend_res:
         recommend_res = m.contentModel.getSimPopularMovie("-1")
     elif len(recommend_res) < 20:
         recommend_res.extend(m.contentModel.getSimPopularMovie(str(user_id)))
-    return json.dumps(recommend_res)
 
-def update_table(user_id):
+    result = json.dumps(recommend_res)
+    movies = []
+    
+    for recommend_movies in recommend_res:
+        movies.append(recommend_movies[0])
+    update_table(user_id, movies)
+    return result
+
+def update_table(user_id, movies):
     query = {"user_id": user_id}
     result = table.find_one(query)
+    current_time = strftime("%Y-%m-%d %H:%M:%S", gmtime())
     if result is None:
-        table.insert_one({"user_id": user_id, "count": 1})
+        table.insert_one({"user_id": user_id, "movies": movies, "query_time": current_time})
     else:
-        newvalues = {"$set": {"count": int(result["count"]) + 1}}
+        original = result["movies"]
+        for movie in movies:
+            if movie not in original:
+                original.append(movie)
+        newvalues = {"$set": {"movies": original, "query_time": current_time}}
         table.update_one(query, newvalues)
 
 if __name__ == "__main__":
