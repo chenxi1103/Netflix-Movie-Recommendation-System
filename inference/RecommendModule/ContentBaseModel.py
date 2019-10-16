@@ -55,7 +55,7 @@ class ContentModel:
 
     def getSimPopularMovie(self, movieId):
         if movieId not in self.movieId2Feature:
-            randidx = random.randint(0,self.recNum)
+            randidx = random.randint(0,self.recNum-1)
             movieId = self.topPopularMovieList[randidx]
         return self.findSimMovie(movieId)
 

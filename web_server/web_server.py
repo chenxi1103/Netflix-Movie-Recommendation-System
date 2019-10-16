@@ -16,7 +16,7 @@ def hello():
 
 @app.route('/recommend/<user_id>')
 def inference(user_id):
-    #update_table(user_id)
+    update_table(user_id)
     recommend_res = m.predictForEachUser(str(user_id))
     if not recommend_res:
         recommend_res = m.contentModel.getSimPopularMovie("-1")
