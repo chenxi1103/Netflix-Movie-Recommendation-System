@@ -46,7 +46,7 @@ class ContentModel:
         resultsIndex, dists = self.model.nn_index(query_feature, self.recNum, checks=self.modelAppendix["checks"])
         result = []
         for idx in resultsIndex[0]:
-            result.append(self.movieFeatureIndex2MovieId[idx])
+            result.append((self.movieFeatureIndex2MovieId[idx],"ContentBaseRecommend"))
         return result
 
     def calculatePopularMovie(self):

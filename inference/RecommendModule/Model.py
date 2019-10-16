@@ -45,7 +45,7 @@ class ModelBasedModel:
         self.MAIN_DIR_PATH = MainDir
         self.ExpName = ExpName
         self.ExpType = None
-        self.trainset, self.testset = None, None
+        self.trainset, self.testset, self.rawMovieList, self.rawUserList = None, None, None, None
         self.loadConfig(self.MAIN_DIR_PATH + self.CONFIG_RELATIVE_PATH, ExpName)
         self.model = self.MODEL_DICT[self.config[self.MODEL_NAME]]
         self.contentModel = ContentBaseModel.ContentModel(self.content_config[self.REC_NUM],
@@ -83,6 +83,8 @@ class ModelBasedModel:
             self.testset = data.build_full_trainset()
         else:
             raise AttributeError
+        self.rawMovieList = list(set([x[1] for x in self.trainset.build_testset()]))
+        self.rawUserList = list(set([x[0] for x in self.trainset.build_testset()]))
 
     def saveModel(self):
         dirname = self.MAIN_DIR_PATH + self.config[self.MODEL_PATH] + self.ExpName
@@ -100,7 +102,10 @@ class ModelBasedModel:
 
     def predictForEachUser(self, userId):
         self.loadFeature("TRAIN")
-        pred = self.model.test(self.trainset.build_testset())
+        if userId not in self.rawUserList:
+            return []
+        pred = [self.model.predict(userId, iid, 1) for iid in self.rawMovieList]
+        #pred = self.model.test(self.trainset.build_testset())
         topn = self.get_top_n(pred, self.config[self.TOP_RECOMMEND_RESULT_NUM])
         return topn[userId]
 
