@@ -20,7 +20,12 @@ class ContentModel:
 
         self.model = None
         self.modelAppendix = None
-        self.recNum = recNum
+        try:
+            self.recNum = int(recNum)
+        except:
+            raise AttributeError("Wrong recommendation number format: %s" % str(recNum))
+        if self.recNum < 0:
+            raise AttributeError("Wrong recommendation number format: %s" % str(recNum))
 
         self.MovieDatapath = MovieDatapath
 
@@ -42,6 +47,8 @@ class ContentModel:
         self.modelAppendix = params_kdtree
 
     def findSimMovie(self, movieId):
+        if movieId not in self.movieId2Feature:
+            raise AttributeError("Movie not in training set")
         query_feature = np.array(self.movieId2Feature[movieId], dtype=float)
         resultsIndex, dists = self.model.nn_index(query_feature, self.recNum, checks=self.modelAppendix["checks"])
         result = []
@@ -65,16 +72,19 @@ class ContentModel:
     """
 
     def loadMovieFeature(self):
-        with open(self.MovieDatapath, newline='') as csvfile:
-            file = csv.reader(csvfile, delimiter=',')
-            for row in file:
-                fv = []
-                for i in range(1, len(row)):
-                    fv.append(float(row[i]))
-                self.movieId2Feature[row[0]] = fv
-                self.trainData.append(fv)
-                self.movieFeatureIndex2MovieId.append(row[0])
-                self.trainDataWithMovieId.append([row[0]]+fv)
+        try:
+            with open(self.MovieDatapath, newline='') as csvfile:
+                file = csv.reader(csvfile, delimiter=',')
+                for row in file:
+                    fv = []
+                    for i in range(1, len(row)):
+                        fv.append(float(row[i]))
+                    self.movieId2Feature[row[0]] = fv
+                    self.trainData.append(fv)
+                    self.movieFeatureIndex2MovieId.append(row[0])
+                    self.trainDataWithMovieId.append([row[0]]+fv)
+        except:
+            raise AttributeError("Wrong Movie Feature Path %s:" % self.MovieDatapath)
 
 
 #

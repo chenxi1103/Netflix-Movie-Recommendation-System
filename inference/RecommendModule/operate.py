@@ -12,4 +12,4 @@ if __name__ == "__main__":
         m.evaluation()
     if "Predict" in sys.argv:
         m.loadModel()
-        print(m.predictForEachUser("12345"))
+        print(m.predictForEachUser("63186"))

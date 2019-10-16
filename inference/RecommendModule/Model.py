@@ -47,7 +47,10 @@ class ModelBasedModel:
         self.ExpType = None
         self.trainset, self.testset, self.rawMovieList, self.rawUserList = None, None, None, None
         self.loadConfig(self.MAIN_DIR_PATH + self.CONFIG_RELATIVE_PATH, ExpName)
-        self.model = self.MODEL_DICT[self.config[self.MODEL_NAME]]
+        if self.MODEL_NAME in self.config and self.config[self.MODEL_NAME] in self.MODEL_DICT:
+            self.model = self.MODEL_DICT[self.config[self.MODEL_NAME]]
+        else:
+            raise AttributeError("Model Initilization error")
         self.contentModel = ContentBaseModel.ContentModel(self.content_config[self.REC_NUM],
                                 self.MAIN_DIR_PATH +self.content_config[ self.CONTENT_FEATURE_PATH])
 
@@ -67,22 +70,28 @@ class ModelBasedModel:
             raise AttributeError("Error Config File Path:%s" % filePath)
 
         if ExpName not in d[self.exp_type]:
-            raise AttributeError("Error Experiment Name")
+            raise AttributeError("Error Experiment Name: %s not exists in dict" % ExpName)
         self.config = d[self.exp_type][ExpName]
         self.content_config = d[self.CONTENT_CONFIG]
 
     def loadFeature(self, dataset_type):
         reader = Reader(line_format='user item rating', sep=',')
         if dataset_type == "TRAIN":
-            filePath = self.MAIN_DIR_PATH + self.config[self.FEATURE_PATH]
-            data = Dataset.load_from_file(filePath, reader=reader)
-            self.trainset = data.build_full_trainset()
+            try:
+                filePath = self.MAIN_DIR_PATH + self.config[self.FEATURE_PATH]
+                data = Dataset.load_from_file(filePath, reader=reader)
+                self.trainset = data.build_full_trainset()
+            except:
+                raise AttributeError("Wrong Feature Path")
         elif dataset_type == "EVALUATION":
-            filePath = self.MAIN_DIR_PATH + self.config[self.TEST_FEATURE_PATH]
-            data = Dataset.load_from_file(filePath, reader=reader)
-            self.testset = data.build_full_trainset()
+            try:
+                filePath = self.MAIN_DIR_PATH + self.config[self.TEST_FEATURE_PATH]
+                data = Dataset.load_from_file(filePath, reader=reader)
+                self.testset = data.build_full_trainset()
+            except:
+                raise AttributeError("Wrong Test Feature Path")
         else:
-            raise AttributeError
+            raise AttributeError("Dataset type error")
         self.rawMovieList = list(set([x[1] for x in self.trainset.build_testset()]))
         self.rawUserList = list(set([x[0] for x in self.trainset.build_testset()]))
 
@@ -91,8 +100,11 @@ class ModelBasedModel:
         if not os.path.exists(dirname):
             os.mkdir(dirname)
         filePath = dirname + '/model.pkl'
-        with open(filePath, 'wb') as fp:
-            pickle.dump(self.model, fp)
+        try:
+            with open(filePath, 'wb') as fp:
+                pickle.dump(self.model, fp)
+        except:
+            raise AttributeError("Model Path Error: %s" % filePath)
 
     def loadModel(self):
         dirname = self.MAIN_DIR_PATH + self.config[self.MODEL_PATH] + self.ExpName
@@ -192,4 +204,4 @@ class ModelBasedModel:
 
 
 if __name__ == '__main__':
-    m = ModelBasedModel("a","c")
+    m = ModelBasedModel("a", "c")
