@@ -1,0 +1,14 @@
+Metadata-Version: 2.0
+Name: surprise
+Version: 0.1
+Summary: An easy-to-use library for recommender systems.
+Home-page: http://surpriselib.com
+Author: UNKNOWN
+Author-email: UNKNOWN
+License: UNKNOWN
+Platform: all
+Requires-Dist: scikit-surprise
+
+Please use scikit-surprise(https://pypi.python.org/pypi/scikit-surprise/) instead.
+
+
