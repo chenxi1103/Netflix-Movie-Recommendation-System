@@ -209,11 +209,11 @@ class test_kafka_client(unittest.TestCase):
         with patch('sys.stdout', new=io.StringIO()) as mock_stdout:
             kafka_client.parse_msg_value(invalid_data_1)
         self.assertEqual(mock_stdout.getvalue(),
-                         'Information of user whose user_id is 614 has already recorded in database.\nException happens.\n')
+                         'Information of user whose user_id is 614 has already recorded in database.\nInvalid HTTP request.\n')
 
         with patch('sys.stdout', new=io.StringIO()) as mock_stdout:
             kafka_client.parse_msg_value(invalid_data_2)
-        self.assertEqual(mock_stdout.getvalue(), 'Exception happens.\n')
+        self.assertEqual(mock_stdout.getvalue(), "kafka stream data schema is not valid. (Does not follow 'Timestamp,user_id,HTTP_query_info' schema\n")
 
     def test_write_user_info(self):
         # Valid case

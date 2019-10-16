@@ -17,8 +17,8 @@ stream_rate_table = mongodb_client.get_rate_table()
 
 def query_kafka():
     for msg in consumer:
+        print(msg.value)
         parse_msg_value(msg.value)
-
 
 def kafka_stream_validation(msg):
     data = str(msg).split(',')
@@ -153,9 +153,11 @@ def parse_msg_value(msg):
                 rate = int(extract_movie_id_and_rate(datainfo[2])[1])
                 write_movie_info(movie_id)
                 write_rate_data(movie_id, query_time, user_id, rate)
-    except AttributeError:
-        print("Exception happens.")
+    except AttributeError as error:
+        print(error)
         return
+
+
 
 
 def construct_watch_data(query_time, user_id, movie_name, movie_id, chunk_num):
@@ -200,7 +202,6 @@ def query_user_api(user_id):
             return requests.get(USER_API + user_id).json()
     except:
         raise AttributeError("API error! Result is not valid JSON format.")
-
 
 if __name__ == '__main__':
     query_kafka()
