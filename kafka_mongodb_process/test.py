@@ -42,6 +42,16 @@ def mocked_requests_get_2(*args, **kwargs):
 
 
 class test_kafka_client(unittest.TestCase):
+    def test_kafka_stream_validation(self):
+        # Valid Case
+        valid_kafka_msg = "2019-09-05T19:27:01,614,GET /data/m/brides+2004/20.mpg"
+        kafka_client.kafka_stream_validation(valid_kafka_msg)
+
+        # Invalid Case
+        invalid_kafka_msg = "2019-09-05T19:27:01,614,GET,/data/m/brides+2004/20.mpg"
+        self.assertRaises(AttributeError, kafka_client.kafka_stream_validation, invalid_kafka_msg)
+
+
     def test_parse_HTTP_request(self):
         # Valid Case
         valid_http_request = "GET /data/m/brides+2004/20.mpg"
