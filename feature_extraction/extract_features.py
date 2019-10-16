@@ -2,12 +2,18 @@ import pandas as pd
 import time
 import os
 import sys
+import json
 # import random
 
 import utils.mongodb_client as mongodb_client
 
 rate = mongodb_client.get_rate_table()
 THRESHOLD = 0.2
+
+def read_config():
+    with open(os.path.join(sys.path[0], 'config.json'), 'r') as f:
+        config = json.load(f)
+    return config
 
 def extract_user_movie_score():
     count = 0
@@ -31,10 +37,14 @@ def extract_user_movie_score():
     if (count > total * THRESHOLD):
         # Do something. Such as sending emails to all developers.
         print("Warning: Possible data schema change or too much missing data")
-    df = pd.DataFrame.from_dict(d)
-    
+    return pd.DataFrame.from_dict(d)
+
+def main():
+    config = read_config()
+    df = extract_user_movie_score()
+    df_dedup = df.drop_duplicates(subset=['user_id', 'movie_id', 'score'] ,keep='last')
     file_name = 'user_movie_score_' + str(int(time.time())) + '.csv'
-    df.to_csv(os.path.join(sys.path[0], 'data', file_name))
+    df_dedup.to_csv(os.path.join(config['model_output_dir'], file_name))
 
 if __name__ == '__main__':
-    extract_user_movie_score()
+    main()
