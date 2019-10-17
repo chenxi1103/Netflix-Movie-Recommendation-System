@@ -1,11 +1,11 @@
 import pymongo
 from datetime import date, datetime, timedelta
 
-MONGO_DB_HOST = 'localhost'
-MONGO_DB_PORT = '27017'
+#MONGO_DB_HOST = 'localhost'
+#MONGO_DB_PORT = '27017'
 DB_NAME = 'movie_recommendation'
 
-client = pymongo.MongoClient("mongodb://localhost:27017/")
+client = pymongo.MongoClient("mongodb+srv://teama:eAnrBpV1H1yXh66f@cluster0-ovru2.mongodb.net/test")
 db = client[DB_NAME]
 
 def get_today_query_table():
