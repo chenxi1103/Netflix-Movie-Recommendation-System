@@ -1,7 +1,10 @@
 # 17645TeamA
 
 ## Data Quality
+
 To ensure data is absolutely clean before it can be used to train the model, we do “double check” data cleaning both in “Kafka streaming” part and “feature extraction” part. <br>
+
+### Kafka Streaming
 
 For “Kafka streaming” part, it is very important to ensure that the data queried from Kafka topic follows the correct schema. There are two types of ConsumerRecord here. One is watch data which represents the information of a user watch a movie and it follows the schema like:"[TimeStamp],[user_id],GET /data/m/[movie_id]/[block_num].mpg"
 The other is rate data which represent the information of how a user rate a movie and it follows the schema like:"[TimeStamp],[user_id],GET /rate/[movie_id]=[score]."<br>
@@ -13,3 +16,18 @@ After extract useful information from Kafka raw streaming data, we also do lots 
 Beside, we do consider the situation like what if user and movie information API returns invalid result like unvalid JSON format. So we also mock the API behavior to test if the system can handle the unvalided data provided by API [[related_test]](https://github.com/chenxi1103/17645TeamA/blob/ee3dd5b94986afa9253a16074edcae3352a919b7/kafka_mongodb_process/test.py#L149-L197).
 
 The error handling here is to throw “AttributeError” exception with error message to notify the system that the a data input is not valid. We do not try to do correction here since the error pattern is too unpredictable. We simply dump the invalid data to make sure that the system keeps executing correctly without any bad influence. If time permitted, we may try to do data correction and pattern detection to keep more valuable data. <br>
+
+### Feature Extraction
+
+During the phase of feature extraction, we fetch the data from our MongoDB database, get the features we want and generate a csv file. Although we can allow more flexible feature extraction mechanism through allowing users to config what features they want by writing a config.json, we stick to a simpler implementation of extracting `user_id`, `movie_id` and `score`. Here is how we ensure the data quality.
+
+1. Monitoring the validity of `user_id`, `movie_id` and `score`. It is because the pipeline afterwards assume them to be valid numbers (though `user_id` and `movie_id` do not need to be numbers, `score` must be numbers). It is easy to check through checking whether exceptions are being thrown if we try to convert them to numbers. We do this by writing try..except and setting a threshold. If the percentage of invalid data is bigger than the threshold, actions can be taken. For example, the script can generate emails and send them to developers to warn them about potential data schema change or too many missing data.
+
+2. Monitoring the percentage of duplicated data. Exactly same data should not be present in a dataset for machine learning problems. While generating the features, we can calculate the percentage of the duplicated data [[related_test]](https://github.com/chenxi1103/17645TeamA/blob/b58502768c6cb158e02030c81906e324f52e2d9b/feature_extraction/test/test_extract_features.py#L28-L32). Through running this test, we can get a sense of how much duplicated data we have in the database. Further actions include storing a clean deduped version of data back into database to overwrite old data.
+
+### Limitations
+
+Under the current implementations, some issues that might go undetected includes:
+
+1. The same user rate the same movie for many times with different scores. It may be a problem due to the cause of this issue. If it is due to some bug in the front-end of the application, we should fix it. If the user changes his/her mind, we should keep the last record only.
+
