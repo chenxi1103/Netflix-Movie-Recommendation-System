@@ -1,5 +1,6 @@
 # 17645TeamA
 ## Code Structure Overview
+![alt text](https://github.com/chenxi1103/17645TeamA/blob/master/README_img/CodeStructure.png "Project Code Structure")
 
 Our recommendation system consists of five modules. 
 
