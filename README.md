@@ -61,6 +61,15 @@ The third level is **integration test**. It tests whether the interaction betwee
 
 The fourth level is **system level testing**. It tests the correctness of the system as a whole. We conduct this level test by containerize our whole service and deploy it at other place and manually query the API to check whether the system behaves as expected. 
 
+### Test Adequacy Confidence and Improvement
+Because we have limited time for testing, there are still some places for improvement. We are confident about the basic functionality of service, it is robust to wrong path, wrong data format, malformat query api and kafak stream and change of host machine. However, we are not confident about some extreme test cases, performance(memory usage, latency,scalibility) because we don't test much about it. Below are Specific explanations and improvement.
+
+1. Increase unit test coverage. The unit test for Offline Training Module is not adequate. Some bad cases are not tested, like the train and evaluation method in the Model class, only happy cases are tested. Also some test about connecting to external service are not adequate like mocking Mongo DB. 
+
+2. Reorganize test folder structure. Since we distribute different modules to different team member, we end up adopting a "Hybrid" test folder structure, some tests are within the same folder as source code and some tests are in an independent folder. To improve it, we should organize all the test in one folder which looks clean and is easy for automation
+
+3. Add more test for performance. Even though we have some tests about the running time , we don't have a comprehensive test about the performance in this project. Load testing, memory testing and latency testing are all very important for service availability.
+
 ### Test Coverage Report:
 ![alt text](https://github.com/chenxi1103/17645TeamA/blob/master/README_img/test-coverage-Inference-model.png "test-coverage-Inference-model")
 ![alt text](https://github.com/chenxi1103/17645TeamA/blob/master/README_img/test-coverage-feature-extraction.png "test-coverage-feature-extraction")
@@ -68,7 +77,7 @@ The fourth level is **system level testing**. It tests the correctness of the sy
 
 ## Test in Production
 ### Mechanism
-For test in production, we store each client API query result as {“user_Id”: <user_id>, “movies”:[<recommend_movie_id_1>, <recommend_movie_id_2>,…], “query_time”: <query_time>} into a separate table called “query_table_<date>” to record what movies are recommended to a certain user today. We also summary the watch data as {“user_id”: <user_id>, “movie_id”: <movie_id>, “query_time”: <query_time>} into a separate table called “watch_data_<date>” to record what movies are watched by a certain user today. With these two kind of data, we can see if user really watched movies that recommended by our API.
+For test in production, we store each client API query result as {“user_Id”: <user_id>, “movies”:[<recommend_movie_id_1>, <recommend_movie_id_2>,…], “query_time”: <query_time>} into a separate table called “query_table_<date>” to record what movies are recommended to a certain user today. We also summary the watch data as {“user_id”: <user_id>, “movie_id”: <movie_id>, “query_time”: <query_time>} into a separate table called “watch_data_\<date\>” to record what movies are watched by a certain user today. With these two kind of data, we can see if user really watched movies that recommended by our API.
 
 For example, we have the API query records for “2019-10-10”. And we also have the watch data for “2019-10-11”, “2019-10-12”, and “2019-10-13”. Then we can first extract the users that queried our API on “2019-10-10” from query data [[related code]](https://github.com/chenxi1103/17645TeamA/blob/f8bb879bf1e455f7d1d2d1355204ea529672d588/web_server/daily_query_summary.py#L18-L23). And then we can see what movies did these users watch in next three days (“2019-10-11”, “2019-10-12”, and “2019-10-13”) [[related code]](https://github.com/chenxi1103/17645TeamA/blob/f8bb879bf1e455f7d1d2d1355204ea529672d588/web_server/daily_query_summary.py#L52-L62). if they indeed watched the one of the movies we recommended to them, the “counter” will be plused by 1 [[related code]](https://github.com/chenxi1103/17645TeamA/blob/f8bb879bf1e455f7d1d2d1355204ea529672d588/web_server/daily_query_summary.py#L65-L77). And we compute “counter" multipled by the total number of movies we recommended on “2019-10-10” to get the “hit rate” to see if how well our model performs [[related code]](https://github.com/chenxi1103/17645TeamA/blob/f8bb879bf1e455f7d1d2d1355204ea529672d588/web_server/daily_query_summary.py#L34-L41). 
 
