@@ -49,3 +49,51 @@ Under the current implementations, some issues that might go undetected includes
 
 1. The same user rate the same movie for many times with different scores. It may be a problem due to the cause of this issue. If it is due to some bug in the front-end of the application, we should fix it. If the user changes his/her mind, we should keep the last record only.
 
+## Test Strategy and Reflection
+
+### Test Strategy:
+We have four level tests. 
+The first level is **manually test** . When finishing writing program, we manually run the program to test correctness. It's the basic step for achieving program functionality.
+
+The second level is **unit test**. It tests the correctness of each individual module. For example, in the Kafka-Stream-Processing Module, we mock a Kafka stream producer to test whether our system is able to correctly fetch data from remote server. In the Offline Recommend Training Module and Online Prediction Module, we unit test whether the configuration conforms to a particular schema, whether the path we use to open the file exists, whether the some intermediates variables satisfies some constraints, whether each train, evaluate function behaves as expected.
+
+The third level is **integration test**. It tests whether the interaction between two modules are correct or not. The primary interaction form of this project is by intermediate data(mongodb, watch data table, movie data table, feature vector, model). We build scripts to pipeline some procedures and check whether a cascade of two module behaves as expected.
+
+The fourth level is **system level testing**. It tests the correctness of the system as a whole. We conduct this level test by containerize our whole service and deploy it at other place and manually query the API to check whether the system behaves as expected. 
+
+### Test Adequacy Confidence and Improvement
+Because we have limited time for testing, there are still some places for improvement. We are confident about the basic functionality of service, it is robust to wrong path, wrong data format, malformat query api and kafak stream and change of host machine. However, we are not confident about some extreme test cases, performance(memory usage, latency,scalibility) because we don't test much about it. Below are Specific explanations and improvement.
+
+1. Increase unit test coverage. The unit test for Offline Training Module is not adequate. Some bad cases are not tested, like the train and evaluation method in the Model class, only happy cases are tested. Also some test about connecting to external service are not adequate like mocking Mongo DB. 
+
+2. Reorganize test folder structure. Since we distribute different modules to different team member, we end up adopting a "Hybrid" test folder structure, some tests are within the same folder as source code and some tests are in an independent folder. To improve it, we should organize all the test in one folder which looks clean and is easy for automation
+
+3. Add more test for performance. Even though we have some tests about the running time , we don't have a comprehensive test about the performance in this project. Load testing, memory testing and latency testing are all very important for service availability.
+
+### Test Coverage Report:
+![alt text](https://github.com/chenxi1103/17645TeamA/blob/master/README_img/test-coverage-Inference-model.png "test-coverage-Inference-model")
+![alt text](https://github.com/chenxi1103/17645TeamA/blob/master/README_img/test-coverage-feature-extraction.png "test-coverage-feature-extraction")
+![alt text](https://github.com/chenxi1103/17645TeamA/blob/master/README_img/test-coverage-streamprocess.png "test-coverage-streamprocess")
+
+## Test in Production
+### Mechanism
+For test in production, we store each client API query result as {“user_Id”: <user_id>, “movies”:[<recommend_movie_id_1>, <recommend_movie_id_2>,…], “query_time”: <query_time>} into a separate table called “query_table_<date>” to record what movies are recommended to a certain user today. We also summary the watch data as {“user_id”: <user_id>, “movie_id”: <movie_id>, “query_time”: <query_time>} into a separate table called “watch_data_\<date\>” to record what movies are watched by a certain user today. With these two kind of data, we can see if user really watched movies that recommended by our API.
+
+For example, we have the API query records for “2019-10-10”. And we also have the watch data for “2019-10-11”, “2019-10-12”, and “2019-10-13”. Then we can first extract the users that queried our API on “2019-10-10” from query data [[related code]](https://github.com/chenxi1103/17645TeamA/blob/f8bb879bf1e455f7d1d2d1355204ea529672d588/web_server/daily_query_summary.py#L18-L23). And then we can see what movies did these users watch in next three days (“2019-10-11”, “2019-10-12”, and “2019-10-13”) [[related code]](https://github.com/chenxi1103/17645TeamA/blob/f8bb879bf1e455f7d1d2d1355204ea529672d588/web_server/daily_query_summary.py#L52-L62). if they indeed watched the one of the movies we recommended to them, the “counter” will be plused by 1 [[related code]](https://github.com/chenxi1103/17645TeamA/blob/f8bb879bf1e455f7d1d2d1355204ea529672d588/web_server/daily_query_summary.py#L65-L77). And we compute “counter" multipled by the total number of movies we recommended on “2019-10-10” to get the “hit rate” to see if how well our model performs [[related code]](https://github.com/chenxi1103/17645TeamA/blob/f8bb879bf1e455f7d1d2d1355204ea529672d588/web_server/daily_query_summary.py#L34-L41). 
+
+To make our test in production more flexible, the method get_hit_rate(date, delta) in “daily_query_summary.py” takes two input parameters. First one indicates which query date you want to analyze. Second one indicates how many days after the “query date” do you want to collect for the watch data. For example, if we want to see if users watched our recommended movies after three days they queried API on "2019-10-10”, we can simply call get_hit_rate(“2019-10-10", 3)  to get the hit rate. To show the result more clearly, we save the hit rate result into a csv called “[date][_with_delta_][delta].csv’” under "test_in_production/daily_query_summary/“ path. (In this case, the result csv file’s name is “2019-10-10_with_delta_3.csv”)
+
+### Execution Method and Result
+To run the test in production mechanism, simply run “python3 daily_query_summary.py [date] [delta]” under “web_server” folder. And then we will get analysis result in "test_in_production/daily_query_summary/[date]_with_delta_[delta].csv”.
+
+The example result is shown as following:
+
+| date       | delta         | hit rate |
+|:-------------:|:-------------:| -----:|
+| 2019-10-10     | 3 | 0.4 |
+| 2019-10-11     | 3 | 0.5 |
+| 2019-10-12     | 3 | 0.6 |
+| 2019-10-13     | 3 | 0.7 |
+
+If we see a growing trend of hit rate, it indicates that our model has a good performance and earn clients' trusts. If the hit rate keeps going down, we definitely need to reconsider what is going wrong and may be required to retrain the model. 
+
