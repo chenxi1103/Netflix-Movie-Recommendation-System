@@ -49,3 +49,19 @@ Under the current implementations, some issues that might go undetected includes
 
 1. The same user rate the same movie for many times with different scores. It may be a problem due to the cause of this issue. If it is due to some bug in the front-end of the application, we should fix it. If the user changes his/her mind, we should keep the last record only.
 
+## Test Strategy and Reflection
+
+### Test Strategy:
+We have four level tests. 
+The first level is **manually test** . When finishing writing program, we manually run the program to test correctness. It's the basic step for achieving program functionality.
+
+The second level is **unit test**. It tests the correctness of each individual module. For example, in the Kafka-Stream-Processing Module, we mock a Kafka stream producer to test whether our system is able to correctly fetch data from remote server. In the Offline Recommend Training Module and Online Prediction Module, we unit test whether the configuration conforms to a particular schema, whether the path we use to open the file exists, whether the some intermediates variables satisfies some constraints, whether each train, evaluate function behaves as expected.
+
+The third level is **integration test**. It tests whether the interaction between two modules are correct or not. The primary interaction form of this project is by intermediate data(mongodb, watch data table, movie data table, feature vector, model). We build scripts to pipeline some procedures and check whether a cascade of two module behaves as expected.
+
+The fourth level is **system level testing**. It tests the correctness of the system as a whole. We conduct this level test by containerize our whole service and deploy it at other place and manually query the API to check whether the system behaves as expected. 
+
+### Test Coverage Report:
+![alt text](https://github.com/chenxi1103/17645TeamA/blob/master/README_img/test-coverage-Inference-model.png "test-coverage-Inference-model")
+![alt text](https://github.com/chenxi1103/17645TeamA/blob/master/README_img/test-coverage-feature-extraction.png "test-coverage-feature-extraction")
+![alt text](https://github.com/chenxi1103/17645TeamA/blob/master/README_img/test-coverage-streamprocess.png "test-coverage-streamprocess")
