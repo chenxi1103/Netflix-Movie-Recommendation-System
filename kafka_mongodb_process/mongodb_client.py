@@ -15,6 +15,8 @@ WATCH_DAILY_SUMMARY_TABLE_NAME = str(date.today()) + '_watch_data'
 
 client = pymongo.MongoClient("mongodb://localhost:27017/")
 db = client[DB_NAME]
+def get_db():
+    return db
 
 def get_movie_table():
     return db[MOVIE_TABLE_NAME]

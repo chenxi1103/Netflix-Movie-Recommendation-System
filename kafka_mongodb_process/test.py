@@ -270,3 +270,7 @@ class test_kafka_client(unittest.TestCase):
             self.assertEqual(msg.value, b'test_value')
             consumer.close()
             break
+
+
+if __name__ == '__main__':
+    unittest.main()
