@@ -65,3 +65,26 @@ The fourth level is **system level testing**. It tests the correctness of the sy
 ![alt text](https://github.com/chenxi1103/17645TeamA/blob/master/README_img/test-coverage-Inference-model.png "test-coverage-Inference-model")
 ![alt text](https://github.com/chenxi1103/17645TeamA/blob/master/README_img/test-coverage-feature-extraction.png "test-coverage-feature-extraction")
 ![alt text](https://github.com/chenxi1103/17645TeamA/blob/master/README_img/test-coverage-streamprocess.png "test-coverage-streamprocess")
+
+## Test in Production
+### Mechanism
+For test in production, we store each client API query result as {“user_Id”: <user_id>, “movies”:[<recommend_movie_id_1>, <recommend_movie_id_2>,…], “query_time”: <query_time>} into a separate table called “query_table_<date>” to record what movies are recommended to a certain user today. We also summary the watch data as {“user_id”: <user_id>, “movie_id”: <movie_id>, “query_time”: <query_time>} into a separate table called “watch_data_<date>” to record what movies are watched by a certain user today. With these two kind of data, we can see if user really watched movies that recommended by our API.
+
+For example, we have the API query records for “2019-10-10”. And we also have the watch data for “2019-10-11”, “2019-10-12”, and “2019-10-13”. Then we can first extract the users that queried our API on “2019-10-10” from query data [[related code]](https://github.com/chenxi1103/17645TeamA/blob/f8bb879bf1e455f7d1d2d1355204ea529672d588/web_server/daily_query_summary.py#L18-L23). And then we can see what movies did these users watch in next three days (“2019-10-11”, “2019-10-12”, and “2019-10-13”) [[related code]](https://github.com/chenxi1103/17645TeamA/blob/f8bb879bf1e455f7d1d2d1355204ea529672d588/web_server/daily_query_summary.py#L52-L62). if they indeed watched the one of the movies we recommended to them, the “counter” will be plused by 1 [[related code]](https://github.com/chenxi1103/17645TeamA/blob/f8bb879bf1e455f7d1d2d1355204ea529672d588/web_server/daily_query_summary.py#L65-L77). And we compute “counter" multipled by the total number of movies we recommended on “2019-10-10” to get the “hit rate” to see if how well our model performs [[related code]](https://github.com/chenxi1103/17645TeamA/blob/f8bb879bf1e455f7d1d2d1355204ea529672d588/web_server/daily_query_summary.py#L34-L41). 
+
+To make our test in production more flexible, the method get_hit_rate(date, delta) in “daily_query_summary.py” takes two input parameters. First one indicates which query date you want to analyze. Second one indicates how many days after the “query date” do you want to collect for the watch data. For example, if we want to see if users watched our recommended movies after three days they queried API on "2019-10-10”, we can simply call get_hit_rate(“2019-10-10", 3)  to get the hit rate. To show the result more clearly, we save the hit rate result into a csv called “[date][_with_delta_][delta].csv’” under "test_in_production/daily_query_summary/“ path. (In this case, the result csv file’s name is “2019-10-10_with_delta_3.csv”)
+
+### Execution Method and Result
+To run the test in production mechanism, simply run “python3 daily_query_summary.py [date] [delta]” under “web_server” folder. And then we will get analysis result in "test_in_production/daily_query_summary/[date]_with_delta_[delta].csv”.
+
+The example result is shown as following:
+
+| date       | delta         | hit rate |
+|:-------------:|:-------------:| -----:|
+| 2019-10-10     | 3 | 0.4 |
+| 2019-10-11     | 3 | 0.5 |
+| 2019-10-12     | 3 | 0.6 |
+| 2019-10-13     | 3 | 0.7 |
+
+If we see a growing trend of hit rate, it indicates that our model has a good performance and earn clients' trusts. If the hit rate keeps going down, we definitely need to reconsider what is going wrong and may be required to retrain the model. 
+
