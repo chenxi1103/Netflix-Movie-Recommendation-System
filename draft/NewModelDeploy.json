@@ -1,0 +1,20 @@
+{
+	"DeploymentId": "3",
+    "DeploymentType": "NewModelDeploy",
+    "DeploymentParam": {
+      "DeployStep": 0.1,
+      "IncreamentInterval": 135
+    },
+  
+	"ModelInfo":
+    [
+      {
+        "ModelName": "model1",
+        "ImageId": "abcdefg12345",
+        "UserRange": null
+      }
+    ]
+
+}
+
+
