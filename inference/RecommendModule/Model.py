@@ -81,6 +81,8 @@ class ModelBasedModel:
                 filePath = self.MAIN_DIR_PATH + self.config[self.FEATURE_PATH]
                 data = Dataset.load_from_file(filePath, reader=reader)
                 self.trainset = data.build_full_trainset()
+                self.rawMovieList = list(set([x[1] for x in self.trainset.build_testset()]))
+                self.rawUserList = list(set([x[0] for x in self.trainset.build_testset()]))
             except:
                 raise AttributeError("Wrong Feature Path")
         elif dataset_type == "EVALUATION":
@@ -92,8 +94,6 @@ class ModelBasedModel:
                 raise AttributeError("Wrong Test Feature Path")
         else:
             raise AttributeError("Dataset type error")
-        self.rawMovieList = list(set([x[1] for x in self.trainset.build_testset()]))
-        self.rawUserList = list(set([x[0] for x in self.trainset.build_testset()]))
 
     def saveModel(self):
         dirname = self.MAIN_DIR_PATH + self.config[self.MODEL_PATH] + self.ExpName
