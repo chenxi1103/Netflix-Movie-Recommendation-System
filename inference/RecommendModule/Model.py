@@ -133,7 +133,6 @@ class ModelBasedModel:
         # Precision and recall can then be averaged over all users
         precision = sum(prec for prec in precisions.values()) / len(precisions)
         recall = sum(rec for rec in recalls.values()) / len(recalls)
-        print(precision, recall)
         dirname = self.config[self.MODEL_PATH] + self.ExpName
         filePath = self.MAIN_DIR_PATH + dirname + '/evaluation_result.txt'
         with open(filePath, 'w') as fp:
@@ -143,6 +142,17 @@ class ModelBasedModel:
             fp.write("evaluation_threshold: %d\n" % evaluation_threshold)
             fp.write("Precision: %f \n" % precision)
             fp.write("Recall: %f \n" % recall)
+        precisionThreshold, recallThreshold = 0.8, 0.4
+        if precision > precisionThreshold and recall > recallThreshold:
+            print("Evaluation Passed because:")
+            print("    Precision: %.2f"%precision, "Pass Threshold: %.2f"%precisionThreshold)
+            print("    recall: %.2f"%recall, "Pass Threshold: %.2f"%recallThreshold)
+            return True
+        else:
+            print("Evaluation Failed because:")
+            print("    Precision: %.2f"%precision, "Pass Threshold: %.2f"%precisionThreshold)
+            print("    recall: %.2f"%recall, "Pass Threshold: %.2f"%recallThreshold)
+            return False
 
     '''
     Return the top-N recommendation for each user from a set of predictions.

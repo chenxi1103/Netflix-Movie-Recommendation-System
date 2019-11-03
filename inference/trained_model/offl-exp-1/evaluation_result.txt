@@ -3,4 +3,4 @@ HyperParameter: {}
 evaluation_k: 5
 evaluation_threshold: 4
 Precision: 1.000000 
-Recall: 0.504109 
+Recall: 0.492647 

@@ -44,7 +44,7 @@ def main():
     file_name = 'user_movie_score_' + str(int(time.time())) + '.csv'
     df_dedup.to_csv(os.path.join(config['model_output_dir'], file_name), index=False)
     copy_file_name = 'usermovie' + '.csv'
-    df_dedup.to_csv(os.path.join(config['model_output_dir'], copy_file_name), index=False)
+    df_dedup.to_csv(os.path.join(config['model_output_dir'], copy_file_name), index=False, header=False)
 
 if __name__ == '__main__':
     main()
