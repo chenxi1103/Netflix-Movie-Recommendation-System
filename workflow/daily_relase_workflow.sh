@@ -24,4 +24,21 @@ else
    exit 1 
 fi
 
+echo '#!/usr/bin/env bash' > workflow/run_server.sh
+echo '2to3 -w /usr/local/lib/python3.7/site-packages/pyflann' >> workflow/run_server.sh
+command_str='python3 web_server.py ../ '${DailyActiveModelSetting}  
+echo $command_str >> workflow/run_server.sh
+mv workflow/run_server.sh web_server/run_server.sh
 
+current=`date "+%Y-%m-%d %H:%M:%S"`
+timeStamp=`date -d "$current" +%s`
+currentTimeStamp=$((timeStamp*1000+`date "+%N"`/1000000))
+image_name=${DailyActiveModelSetting}'-'${currentTimeStamp}
+
+echo 'Building container:'$image_name
+echo 12345qwert | sudo -S
+docker build -t web-service:$image_name .
+imageId=`docker images -q web-service:${image_name}`
+echo 'Build docker image successfully, imageId is: '$imageId
+
+python3 send_new_release_to_supervisor.py $imageId
