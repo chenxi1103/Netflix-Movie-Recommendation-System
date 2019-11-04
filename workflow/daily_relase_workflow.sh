@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-#python3 feature_extraction/extract_features.py
-#mv feature_extraction/data/usermovie.csv inference/feature/
-#echo "Feature Extraction Succeeded"
+python3 feature_extraction/extract_features.py
+mv feature_extraction/data/usermovie.csv inference/feature/
+echo "Feature Extraction Succeeded"
 
 . ./workflow/active_model_setting_config.sh
 echo "Chosen ModelSetting:""${DailyActiveModelSetting}"
@@ -32,11 +32,9 @@ mv workflow/run_server.sh web_server/run_server.sh
 
 current=`date "+%Y-%m-%d %H:%M:%S"`
 timeStamp=`date -d "$current" +%s`
-currentTimeStamp=$((timeStamp*1000+`date "+%N"`/1000000))
-image_name=${DailyActiveModelSetting}'-'${currentTimeStamp}
+image_name=${DailyActiveModelSetting}'-'${timeStamp}
 
 echo 'Building container:'$image_name
-echo 12345qwert | sudo -S
 docker build -t web-service:$image_name .
 imageId=`docker images -q web-service:${image_name}`
 echo 'Build docker image successfully, imageId is: '$imageId
