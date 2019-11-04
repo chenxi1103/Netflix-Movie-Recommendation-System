@@ -1,20 +1,18 @@
 {
-	"DeploymentId": "1",
+    "DeploymentId": "1",
     "DeploymentType": "A/BTest",
     "DeploymentParam": {
       "Duration": 135
     },
-	"ModelInfo":
+    "ModelInfo":
     [
       {
-        "ModelName": "model1",
-        "ContainerId": "abcdefg12345",
-        "UserRange": [1,5000]
+        "ModelContainerName": "container1",
+        "UserRange": 0.2
       },
       {
-        "ModelName": "model2",
-        "ContainerId": "abcdefg12346",
-        "UserRange": [5000,8000]
+        "ModelContainerName": "container2",
+        "UserRange": 0.8
       }
     ]
 
