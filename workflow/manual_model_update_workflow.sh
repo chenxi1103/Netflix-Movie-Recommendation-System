@@ -1,9 +1,3 @@
-#!/usr/bin/env bash
-
-python3 feature_extraction/extract_features.py
-mv feature_extraction/data/usermovie.csv inference/feature/
-echo "Feature Extraction Succeeded"
-
 . ./workflow/active_model_setting_config.sh
 echo "Chosen ModelSetting:""${DailyActiveModelSetting}"
 
@@ -13,7 +7,7 @@ then
    echo 'Training succeeded'
 else
    echo 'Training Failed'
-   exit 1 
+   exit 1
 fi
 
 python3 inference/RecommendModule/operate.py . ${DailyActiveModelSetting} Evaluation
@@ -21,12 +15,12 @@ if [ $? -eq 0 ]
 then
    echo 'Evaluation succeeded'
 else
-   exit 1 
+   exit 1
 fi
 
 echo '#!/usr/bin/env bash' > workflow/run_server.sh
 echo '2to3 -w /usr/local/lib/python3.7/site-packages/pyflann' >> workflow/run_server.sh
-command_str='python3 web_server.py ../ '${DailyActiveModelSetting}  
+command_str='python3 web_server.py ../ '${DailyActiveModelSetting}
 echo $command_str >> workflow/run_server.sh
 mv workflow/run_server.sh web_server/run_server.sh
 
