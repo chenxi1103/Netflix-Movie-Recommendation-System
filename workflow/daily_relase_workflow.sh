@@ -35,8 +35,8 @@ timeStamp=`date -d "$current" +%s`
 image_name=${DailyActiveModelSetting}'-'${timeStamp}
 
 echo 'Building container:'$image_name
-docker build -t web-service:$image_name .
-imageId=`docker images -q web-service:${image_name}`
+sudo docker build -t web-service:$image_name .
+imageId=`sudo docker images -q web-service:${image_name}`
 echo 'Build docker image successfully, imageId is: '$imageId
 
 python3 send_new_release_to_supervisor.py $imageId
