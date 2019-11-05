@@ -36,6 +36,9 @@ def recommend(user_id):
         TEST_REQUEST_COUNT += 1
         return handle_mixed_traffic(user_id)
 
+    # TODO: somehow record this response
+    # TODO: report(experimentType) -> boolean: isValid
+
 
 @app.route('/test')
 def test():
