@@ -7,9 +7,11 @@ import requests
 
 app = Flask(__name__)
 
-# This function will evaluate Docker state and start a
-# Production container if necessary. It also terminates
-# with an error code if it cannot do so.
+"""
+This function will evaluate Docker state and start a
+Production container if necessary. It also terminates
+with an error code if it cannot do so.
+"""
 start_system()
 
 
@@ -32,10 +34,10 @@ def recommend():
     return user_id
 
 
-@app.route('/abtest')
-def ab_test():
-    ab_test_conf = request.json
-    if parse_ab_test_config(ab_test_conf):
+@app.route('/test')
+def test():
+    test_conf = request.json
+    if parse_test_config(test_conf):
         return 'Test started successfully'
     else:
         return 'Test was not started, no changes have been applied'
