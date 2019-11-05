@@ -8,9 +8,13 @@ Treatment is the new model that we want to test against the old model.
 """
 class RouterTable:
     def __init__(self, port):
+        # The port of our control model
         self.control_port = port
+        # The port of our treat model
         self.treat_port = -1
+        # The mapping from user_id to self.CONTROL or self.TREAT
         self.user_to_group = {}
+        # How many traffic are we directing into treat model
         self.treat_percentage = 0
 
         self.CONTROL = "CONTROL"
@@ -20,8 +24,10 @@ class RouterTable:
         if not self.is_in_test():
             return self.control_port
 
+        # If we have not seen this user before, we first assign it to a group according to self.treat_percentage.
         if user_id not in self.user_to_group:
             self.assign_new_user(user_id)
+
         if self.user_to_group[user_id] == self.CONTROL:
             return self.control_port
         else:
@@ -41,6 +47,9 @@ class RouterTable:
         self.user_to_group = {}
         self.treat_percentage = percentage
 
+    """
+    For the user we have not seen before, we add him/her into our map.
+    """
     def assign_new_user(self, user_id):
         r = random.random()
         if r <= self.treat_percentage:
