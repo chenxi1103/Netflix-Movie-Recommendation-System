@@ -40,11 +40,13 @@ def recommend(user_id):
     # TODO: report(experimentType) -> boolean: isValid
 
 
-@app.route('/test')
+@app.route('/test', methods=['GET', 'POST'])
 def test():
     test_conf = request.json
-    if parse_test_config(test_conf):
-        start_test(cf.LATEST_IMAGE_NAME, 8082, BASE_PORT + 2)
+    isSuccessful, config = parse_test_config(test_conf)
+    if isSuccessful:
+        start_test(config["ModelInfo"]["ModelContainerName"], 8082, BASE_PORT + 2)
+        print(config["ModelInfo"]["ModelContainerName"])
         return 'Test started successfully'
     else:
         return 'Test was not started, no changes have been applied'

@@ -1,5 +1,6 @@
 import sys
 import container_functions as cf
+import json
 
 # Default state is Production, indicated by 0
 # 1 represents an ongoing test
@@ -71,15 +72,14 @@ Placeholder method for parsing test config
 """
 
 
-def parse_test_config(req):
+def parse_test_config(test_conf):
     try:
         # Current state checking
         # Parse params
-        #duration = int(req['duration'])
-        #test_type = req['A/BTest']
 
         # Create container, switch state and update test params
-        return True
+        config = json.loads(test_conf) 
+        return True, config
     except:
         # State shall remain unchanged
         return False
