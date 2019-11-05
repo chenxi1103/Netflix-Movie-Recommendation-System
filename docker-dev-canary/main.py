@@ -1,87 +1,45 @@
-"""
-    A/B Testing Canary Testing Part in the supervisor module draft
-"""
+from flask import Flask
+from flask import request
+from state_handlers import *
+from traffic_handlers import *
 
-UserIdContainerMap = None
-DeploymentStatus = 'InfrastructureAvailable'
+import requests
 
-"""
-    Read config file ABTestConfig.json or NewModelDeploy.json and get config dict
-"""
-def readConfig(configfile):
-    # config = parse(configfile)
-    # return config
-    raise NotImplemented
+app = Flask(__name__)
 
-"""
-    Excute a new deployment according to config. 
-"""
-def excutor(configfile, logpath):
-    # config = readConfig()
-
-    # if is New Model Deployment
-    #   update(UserIdContainerMap, config)
-    #   sleep(config)
-    #   analyzeLog(logPath)
-    #   update(UserIdContainerMap, config)
-    #   sleep(config)
-    #   analyzeLog(logPath)
-    #   ...
-    #   if not performing well:
-    #       rollback_to_previous_version()
-    #   report()
-
-    # if is A/B test experiment
-    #   ....
-    raise NotImplemented
-
-"""
-    Return containerId given userId according to UserIdContainerMap (Need not to be a dict)
-"""
-def router(userId):
-    # return UserIdContainerMap[userId]
-    raise NotImplemented
-
-"""
-    Update UserIdContainerMap according to config
-"""
-def update():
-    raise NotImplemented
-
-"""
-    Analyze model performance according to the log
-"""
-def analyzeLog(logPath):
-    raise NotImplemented
+# This function will evaluate Docker state and start a
+# Production container if necessary. It also terminates
+# with an error code if it cannot do so.
+start_system()
 
 
-"""
-    Decide whether to excute the new deployment
-"""
-def whenSuperviserReceiveNewConfiguration():
-    global DeploymentStatus
-    if DeploymentStatus == 'InfrastructureAvailable':
-        DeploymentStatus = 'InfrastructureNotAvailable'
-        excutor(None, None)
-    elif DeploymentStatus == 'InfrastructureNotAvailable':
-        #reportFailure()
-        pass
+@app.route('/')
+def index():
+    return "Welcome to the Movie Recommendation System!"
 
-"""
-    *************************************************
-"""
 
-"""
-    Infrastructure Part in the supervisor module draft
-"""
-def receiveRequestAndSendToAccordingContainer(apistring):
-    # userid = parse(apistring)
-    # containerid = router(userId)
-    # response = sendRequestandReceiveResponse(containerid)
-    # logResponse(response,logPath)
-    # sendBackToUser(response)
-    raise NotImplemented
+@app.route('/recommend')
+def recommend():
+    try:
+        user_id = int(request.args.get('user_id'))
+    except:
+        return 'Invalid user ID entered'
 
-def receiveConfigurationRequest(apistring):
-    # whenSuperviserReceiveNewConfiguration()
-    raise NotImplemented
+    # Simple production state, simply send all traffic to the production node
+    if SYSTEM_STATE == 0:
+        return handle_production_traffic(user_id)
+
+    return user_id
+
+
+@app.route('/abtest')
+def ab_test():
+    ab_test_conf = request.json
+    if parse_ab_test_config(ab_test_conf):
+        return 'Test started successfully'
+    else:
+        return 'Test was not started, no changes have been applied'
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', debug=True)
