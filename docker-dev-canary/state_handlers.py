@@ -46,7 +46,6 @@ def start_system():
 def is_test_running():
     return number_of_containers_running() == 2
 
-# TODO: change router table accordingly
 def start_test(test_image, host_port, container_port):
     if is_test_running():
         return True
