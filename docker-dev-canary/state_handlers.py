@@ -4,7 +4,6 @@ import container_functions as cf
 # Default state is Production, indicated by 0
 # 1 represents an ongoing test
 SYSTEM_STATE = 0
-PRODUCTION_BASE_URL = 'http://128.2.204.234:8082/'
 current_containers = None
 
 
@@ -27,7 +26,7 @@ def parse_ab_test_config(req):
         # Current state checking
         # Parse params
         duration = int(req.duration)
-        # Create container, redirect traffic via map
+        # Create container, switch state and update test params
         return True
     except:
         # State shall remain unchanged
