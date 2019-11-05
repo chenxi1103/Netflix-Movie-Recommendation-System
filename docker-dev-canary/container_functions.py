@@ -13,12 +13,12 @@ or None if the image passed was None
 """
 
 
-def start_and_get_containers(image, host_port, container_port):
+def start_and_get_containers(image, host_port, container_port, allow_duplicates=False):
     if image is None:
         return []
     if not isinstance(image, str):
         image = image.tags[0]
-    if check_container_status_and_get(image) == []:
+    if check_container_status_and_get(image) == [] or allow_duplicates == True:
         return [client.containers.run(image=image, detach=True, ports={host_port: container_port})]
     else:
         return check_container_status_and_get(image)
@@ -46,13 +46,11 @@ Otherwise, it returns None
 
 def check_container_status_and_get(containerImage):
     if isinstance(containerImage, str):
-        list_containers = client.containers.list(
+        return client.containers.list(
             filters={'ancestor': containerImage})
-        return None if list_containers == [] else list_containers
     elif isinstance(containerImage, Container):
-        list_containers = client.containers.list(
+        return client.containers.list(
             filters={'id': containerImage.id})
-        return None if list_containers == [] else list_containers
 
 
 """
@@ -63,5 +61,9 @@ Returns the latest image from the Docker registry
 def get_latest_image():
     try:
         return client.images.get(name=LATEST_IMAGE_NAME)
+        if isinstance(images, list):
+            return images[-1]
+        else:
+            return images
     except:
         return None
