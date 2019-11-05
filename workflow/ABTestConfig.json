@@ -1,0 +1,14 @@
+{
+    "DeploymentId": "1",
+    "DeploymentType": "A/BTest",
+    "DeploymentParam": {
+      "Duration": 10000
+    },
+    "ModelInfo":
+    {
+       "ModelContainerName": "container1",
+       "ExpPercentage": 0.2
+    }
+}
+
+
