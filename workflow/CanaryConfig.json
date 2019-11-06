@@ -2,8 +2,8 @@
     "DeploymentId": "2",
     "DeploymentType": "CanaryTest",
     "DeploymentParam": {
-      "Step": 0.1,
-      "interval": 10000
+      "Step": 0.2,
+      "interval": 5
     },
     "ModelInfo":
     {

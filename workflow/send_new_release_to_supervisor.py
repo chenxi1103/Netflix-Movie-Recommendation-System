@@ -6,12 +6,12 @@ if __name__=='__main__':
     exp_type, image_name = sys.argv[1], sys.argv[2]
     json_str = None
     if exp_type == 'Canary':
-        with open("CanaryConfig.json",'r') as f:
+        with open("workflow/CanaryConfig.json",'r') as f:
             d = json.load(f)
             d["ModelInfo"]["ModelContainerName"] = image_name
             json_str = json.dumps(d) 
     elif exp_type == 'ABTest':
-        with open("CanaryConfig.json",'r') as f:
+        with open("workflow/ABTestConfig.json",'r') as f:
             d = json.load(f)
             d["ModelInfo"]["ModelContainerName"] = image_name
             json_str = json.dumps(d) 
