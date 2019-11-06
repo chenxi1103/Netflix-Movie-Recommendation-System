@@ -9,6 +9,8 @@ from state_handlers import *
 from RouterTable import RouterTable
 from eval_model import eval_model
 
+global model_status
+model_status = "No_experiment"
 
 app = Flask(__name__)
 
@@ -60,7 +62,13 @@ def recommend(user_id):
                 ROUTER.set_treat_percentage(percentage)
         if done:
             # Test ends.
+            global model_status
             isValid = eval_model(pd.DataFrame.from_dict(EXPERIMENT_LOG))
+            if isValid:
+                model_status = "Success"
+            else:
+                model_status = "Failed"
+
             EXPERIMENT_LOG = {'user_id': [], 'timestamp': []}
             CONFIG_EXPERIMENTS = {}
             ROUTER.flush()
@@ -84,12 +92,17 @@ def test():
         CONFIG_EXPERIMENTS = config
         CONFIG_EXPERIMENTS['StartTime'] = time.time()
         ROUTER.set_new_treatment(BASE_PORT + 2, config['ModelInfo']['ExpPercentage'])
+        global model_status
+        model_status = "Pending"
         start_test(config["ModelInfo"]["ModelContainerName"], 8082, BASE_PORT + 2)
         print(config["ModelInfo"]["ModelContainerName"])
         return 'Test started successfully'
     else:
         return 'Test was not started, no changes have been applied'
 
+@app.route('/model_status', methods=['GET', 'POST'])
+def jenkins_query():
+    return model_status
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8082, debug=True)

@@ -40,3 +40,12 @@ imageId=`sudo docker images -q web-service:${image_name}`
 echo 'Build docker image successfully, imageId is: '$imageId
 
 python3 workflow/send_new_release_to_supervisor.py $imageId
+
+python3 workflow/check_model_status.py
+if [ $? -eq 0 ]
+then
+   echo 'Canary Test Succeeded! Model is Ready to Release!'
+else
+   echo 'Canary Test Failed! Model is going to rollback!'
+   exit 1 
+fi
