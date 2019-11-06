@@ -32,11 +32,11 @@ mv workflow/run_server.sh web_server/run_server.sh
 
 current=`date "+%Y-%m-%d %H:%M:%S"`
 timeStamp=`date -d "$current" +%s`
-image_name=${DailyActiveModelSetting}'-'${timeStamp}
+image_name='Webservice:'${DailyActiveModelSetting}'-'${timeStamp}
 
 echo 'Building container:'$image_name
 sudo docker build -t web-service:$image_name .
 imageId=`sudo docker images -q web-service:${image_name}`
 echo 'Build docker image successfully, imageId is: '$imageId
 
-python3 workflow/send_new_release_to_supervisor.py $imageId
+python3 workflow/send_new_release_to_supervisor.py 'Canary' $imageId
