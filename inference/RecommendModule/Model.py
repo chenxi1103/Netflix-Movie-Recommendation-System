@@ -142,7 +142,7 @@ class ModelBasedModel:
             fp.write("evaluation_threshold: %d\n" % evaluation_threshold)
             fp.write("Precision: %f \n" % precision)
             fp.write("Recall: %f \n" % recall)
-        precisionThreshold, recallThreshold = 0.8, 0.4
+        precisionThreshold, recallThreshold = 0.8, 0.7
         if precision > precisionThreshold and recall > recallThreshold:
             print("Evaluation Passed because:")
             print("    Precision: %.2f"%precision, "Pass Threshold: %.2f"%precisionThreshold)
