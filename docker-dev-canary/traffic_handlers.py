@@ -5,9 +5,9 @@ This file has all traffic handling functions for the system
 import requests
 from state_handlers import *
 
-BASE_URL = "http://128.2.204.234:"
-PRODUCTION_PORT = '8081/'
-TEST_PORT = '8083/'
+PRODUCTION_BASE_URL = 'http://128.2.204.234:8081/'
+TEST_BASE_URL = 'http://128.2.204.234:8083/'
+TEST_REQUEST_COUNT = 0
 
 """
 Returns 0 if the user needs to be redirected to the production 
@@ -29,7 +29,7 @@ def handle_mixed_traffic(user_id):
 def handle_production_traffic(user_id):
     try:
         response = requests.get(
-            BASE_URL + PRODUCTION_PORT + 'recommend/' + str(user_id)).text
+            PRODUCTION_BASE_URL + 'recommend/' + str(user_id)).text
         return response
     except:
         return 'Invalid response from production prediction node'
@@ -38,7 +38,7 @@ def handle_production_traffic(user_id):
 def handle_test_traffic(user_id):
     try:
         response = requests.get(
-            BASE_URL + TEST_PORT + 'recommend/' + str(user_id)).text
+            TEST_BASE_URL + 'recommend/' + str(user_id)).text
         return response
     except:
         return 'Invalid response from production prediction node'
