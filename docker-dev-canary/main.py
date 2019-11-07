@@ -1,5 +1,4 @@
-from flask import Flask
-from flask import request
+from flask import Flask, request
 import requests
 import time
 import pandas as pd
@@ -67,9 +66,11 @@ def recommend(user_id):
             global model_status
             isValid = eval_model(pd.DataFrame.from_dict(TREATMENT_LOG))
             if isValid:
+                switch_traffic_ports_to_test()
                 model_status = "Success"
             else:
                 model_status = "Failed"
+                switch_traffic_port_to_prod()
             TREATMENT_LOG = {'user_id': [], 'timestamp': []}
             CONTROL_LOG = {'user_id': [], 'timestamp': []}
             CONFIG_EXPERIMENTS = {}
@@ -97,26 +98,31 @@ def test():
     if isSuccessful:
         CONFIG_EXPERIMENTS = config
         CONFIG_EXPERIMENTS['StartTime'] = time.time()
-        ROUTER.set_new_treatment(BASE_PORT + 2, config['ModelInfo']['ExpPercentage'] if 'ExpPercentage' in config['ModelInfo'] else 0)
+        ROUTER.set_new_treatment(
+            BASE_PORT + 2, config['ModelInfo']['ExpPercentage'] if 'ExpPercentage' in config['ModelInfo'] else 0)
         # ROUTER.set_new_treatment(BASE_PORT + 2, config['ModelInfo']['ExpPercentage'])
         global model_status
         model_status = "Pending"
         print(model_status)
-        start_test(config["ModelInfo"]["ModelContainerName"], 8082, BASE_PORT + 2)
+        start_test(config["ModelInfo"]["ModelContainerName"],
+                   8082, TEST_PORT)
         print(config["ModelInfo"]["ModelContainerName"])
         return 'Test started successfully'
     else:
         return 'Test was not started, no changes have been applied'
 
+
 @app.route('/model_status', methods=['GET'])
 def jenkins_query():
     return model_status
+
 
 @app.route('/reset_model_status', methods=['GET', 'POST'])
 def reset_status():
     global model_status
     model_status = "No_experiment"
     return ""
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8082, debug=True)

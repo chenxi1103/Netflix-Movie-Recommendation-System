@@ -46,6 +46,7 @@ def start_system():
 def is_test_running():
     return number_of_containers_running() == 2
 
+
 def start_test(test_image, host_port, container_port):
     if is_test_running():
         return True
@@ -77,28 +78,8 @@ def parse_test_config(test_conf):
         # Parse params
 
         # Create container, switch state and update test params
-        config = json.loads(test_conf) 
+        config = json.loads(test_conf)
         return True, config
     except:
         # State shall remain unchanged
         return False
-
-        #     {
-        #     "DeploymentId": "1",
-        #     "DeploymentType": "A/BTest",
-        #     "DeploymentParam": {
-        #       "Duration": 135
-        #     },
-        #     "ModelInfo":
-        #     [
-        #       {
-        #         "ModelContainerName": "container1",
-        #         "UserRange": 0.2
-        #       },
-        #       {
-        #         "ModelContainerName": "container2",
-        #         "UserRange": 0.8
-        #       }
-        #     ]
-
-        # }

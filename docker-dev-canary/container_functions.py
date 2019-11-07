@@ -1,4 +1,5 @@
 import docker
+from docker import Container
 
 IMAGE_NAME = 'teama/web-service'
 LATEST_IMAGE_NAME = IMAGE_NAME + ':latest'
@@ -60,7 +61,7 @@ Returns the latest image from the Docker registry
 
 def get_latest_image():
     try:
-        return client.images.get(name=LATEST_IMAGE_NAME)
+        images = client.images.get(name=LATEST_IMAGE_NAME)
         if isinstance(images, list):
             return images[-1]
         else:
