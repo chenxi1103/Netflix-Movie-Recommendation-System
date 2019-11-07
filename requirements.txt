@@ -8,3 +8,4 @@ numpy==1.17.2
 pandas==0.25.1
 surprise==0.1
 dnspython==1.16.0
+scipy==1.3.1
