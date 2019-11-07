@@ -1,5 +1,4 @@
 import docker
-from docker import Container
 
 IMAGE_NAME = 'teama/web-service'
 LATEST_IMAGE_NAME = IMAGE_NAME + ':latest'
