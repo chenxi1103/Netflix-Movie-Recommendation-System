@@ -7,9 +7,10 @@ import json
 SYSTEM_STATE = 0
 # Variable to hold current containers in a list
 current_containers = []
+# Variable to hold the production container
+
 # Port mappings
 BASE_PORT = 8081
-
 # router table
 
 """
@@ -46,6 +47,7 @@ def start_system():
 def is_test_running():
     return number_of_containers_running() == 2
 
+
 def start_test(test_image, host_port, container_port):
     if is_test_running():
         return True
@@ -53,17 +55,26 @@ def start_test(test_image, host_port, container_port):
         cf.start_and_get_containers(
             test_image, host_port, container_port, True)
         current_containers = cf.check_container_status_and_get(cf.IMAGE_NAME)
+
         return True
 
 
 def stop_test(is_successful):
+    SYSTEM_STATE = 0
     if is_successful:
         # Kill production, switch to test
-        pass
+        try:
+            for container in cf.check_container_status_and_get(cf.TEST_IMAGE):
+                cf.stop_container(container)
+        except:
+            print('Unable to switch containers, redirecting traffic to production')
     else:
         # Kill test, switch to production
-        pass
-    SYSTEM_STATE = 0
+        try:
+            for container in cf.check_container_status_and_get(cf.LATEST_IMAGE_NAME):
+                cf.stop_container(container)
+        except:
+            print('Unable to switch containers, redirecting traffic to production')
 
 
 """
@@ -73,32 +84,9 @@ Placeholder method for parsing test config
 
 def parse_test_config(test_conf):
     try:
-        # Current state checking
         # Parse params
-
-        # Create container, switch state and update test params
-        config = json.loads(test_conf) 
+        config = json.loads(test_conf)
         return True, config
     except:
         # State shall remain unchanged
-        return False
-
-        #     {
-        #     "DeploymentId": "1",
-        #     "DeploymentType": "A/BTest",
-        #     "DeploymentParam": {
-        #       "Duration": 135
-        #     },
-        #     "ModelInfo":
-        #     [
-        #       {
-        #         "ModelContainerName": "container1",
-        #         "UserRange": 0.2
-        #       },
-        #       {
-        #         "ModelContainerName": "container2",
-        #         "UserRange": 0.8
-        #       }
-        #     ]
-
-        # }
+        return False, None
