@@ -1,4 +1,5 @@
 import pandas as pd
+from scipy import stats
 
 """
 This function takes the data that a specific model produces and tell whether it is a good model or not.
@@ -15,6 +16,27 @@ Return: boolean. Determine whether certain percentages of users use the recommen
 def eval_model(df, req_percentage=0.2, time_window=20):
     total_requests = df.shape[0]
     return (num_following_req(df, time_window) / total_requests) >= req_percentage
+
+def percentage_following_req(df, time_window):
+    total_requests = df.shape[0]
+    return num_following_req(df, time_window) / total_requests
+
+def t_test(df_control, df_treatment, time_window=20):
+    control = get_one_hot_list(df_control, time_window)
+    treatment = get_one_hot_list(df_treatment, time_window)
+    return stats.ttest_ind(control, treatment)[1]
+
+def get_one_hot_list(df, time_window=20):
+    time_window *= 60
+    l = []
+    for user_id, group in df.groupby('user_id'):
+        timestamps = group['timestamp'].tolist()
+        for i in range(1, len(timestamps)):
+            if (timestamps[i] - timestamps[i-1] <= time_window):
+                l.append(1)
+            else:
+                l.append(0)
+    return l
 
 """
 Return the number of requests that are in the time_window of the last request. This can be included in our report.

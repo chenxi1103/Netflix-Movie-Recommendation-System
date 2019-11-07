@@ -22,7 +22,8 @@ start_system()
 # print(TEST_REQUEST_COUNT)
 ROUTER = RouterTable(BASE_PORT)
 CONFIG_EXPERIMENTS = {}
-EXPERIMENT_LOG = {'user_id': [], 'timestamp': []}
+TREATMENT_LOG = {'user_id': [], 'timestamp': []}
+CONTROL_LOG = {'user_id': [], 'timestamp': []}
 
 
 @app.route('/')
@@ -32,7 +33,7 @@ def index():
 
 @app.route('/recommend/<user_id>')
 def recommend(user_id):
-    global CONFIG_EXPERIMENTS, EXPERIMENT_LOG
+    global CONFIG_EXPERIMENTS, TREATMENT_LOG, CONTROL_LOG
     global model_status
 
     try:
@@ -64,22 +65,25 @@ def recommend(user_id):
         if done:
             # Test ends.
             global model_status
-            isValid = eval_model(pd.DataFrame.from_dict(EXPERIMENT_LOG))
+            isValid = eval_model(pd.DataFrame.from_dict(TREATMENT_LOG))
             if isValid:
                 model_status = "Success"
             else:
                 model_status = "Failed"
-            EXPERIMENT_LOG = {'user_id': [], 'timestamp': []}
+            TREATMENT_LOG = {'user_id': [], 'timestamp': []}
+            CONTROL_LOG = {'user_id': [], 'timestamp': []}
             CONFIG_EXPERIMENTS = {}
             ROUTER.flush()
             # TODO: Shut down and open up containers accordingly
             # TODO: Calling email API
 
     if ROUTER.is_user_in_treatment(user_id):
-        EXPERIMENT_LOG['user_id'].append(user_id)
-        EXPERIMENT_LOG['timestamp'].append(req_time)
+        TREATMENT_LOG['user_id'].append(user_id)
+        TREATMENT_LOG['timestamp'].append(req_time)
         return handle_test_traffic(user_id)
     else:
+        CONTROL_LOG['user_id'].append(user_id)
+        CONTROL_LOG['timestamp'].append(req_time)
         return handle_production_traffic(user_id)
 
 
