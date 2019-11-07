@@ -73,8 +73,7 @@ def recommend(user_id):
             CONTROL_LOG = {'user_id': [], 'timestamp': []}
             CONFIG_EXPERIMENTS = {}
             ROUTER.flush()
-            # TODO: Shut down and open up containers accordingly
-            # TODO: Calling email API
+            stop_test(isValid)
 
     if ROUTER.is_user_in_treatment(user_id):
         TREATMENT_LOG['user_id'].append(user_id)
