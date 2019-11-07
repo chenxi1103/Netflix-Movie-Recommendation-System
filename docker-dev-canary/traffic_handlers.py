@@ -45,4 +45,6 @@ def handle_test_traffic(user_id):
 
 
 def switch_traffic_ports_to_test():
+    global PRODUCTION_PORT 
+    global TEST_PORT
     PRODUCTION_PORT, TEST_PORT = TEST_PORT, PRODUCTION_PORT
