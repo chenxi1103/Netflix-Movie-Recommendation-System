@@ -3,6 +3,7 @@ from docker import Container
 
 IMAGE_NAME = 'teama/web-service'
 LATEST_IMAGE_NAME = IMAGE_NAME + ':latest'
+TEST_IMAGE = None
 client = docker.from_env()
 
 """

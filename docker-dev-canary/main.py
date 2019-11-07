@@ -18,7 +18,6 @@ Production container if necessary. It also terminates
 with an error code if it cannot do so.
 """
 start_system()
-# print(TEST_REQUEST_COUNT)
 ROUTER = RouterTable(BASE_PORT)
 CONFIG_EXPERIMENTS = {}
 TREATMENT_LOG = {'user_id': [], 'timestamp': []}
@@ -48,7 +47,7 @@ def recommend(user_id):
         if CONFIG_EXPERIMENTS['DeploymentType'] == 'A/BTest':
             duration = CONFIG_EXPERIMENTS['Duration']
             if req_time - CONFIG_EXPERIMENTS['StartTime'] >= duration:
-                # Test ends.
+                # Test ends
                 done = True
         elif CONFIG_EXPERIMENTS['DeploymentType'] == 'CanaryTest':
             start_time = CONFIG_EXPERIMENTS['StartTime']
@@ -70,7 +69,6 @@ def recommend(user_id):
                 model_status = "Success"
             else:
                 model_status = "Failed"
-                switch_traffic_port_to_prod()
             TREATMENT_LOG = {'user_id': [], 'timestamp': []}
             CONTROL_LOG = {'user_id': [], 'timestamp': []}
             CONFIG_EXPERIMENTS = {}

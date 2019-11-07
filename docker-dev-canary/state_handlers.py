@@ -54,16 +54,25 @@ def start_test(test_image, host_port, container_port):
         cf.start_and_get_containers(
             test_image, host_port, container_port, True)
         current_containers = cf.check_container_status_and_get(cf.IMAGE_NAME)
+        cf.TEST_IMAGE = test_image
         return True
 
 
 def stop_test(is_successful):
     if is_successful:
         # Kill production, switch to test
-        pass
+        try:
+            for container in cf.check_container_status_and_get(cf.TEST_IMAGE):
+                cf.stop_container(container)
+        except:
+            print('Unable to switch containers, redirecting traffic to production')
     else:
         # Kill test, switch to production
-        pass
+        try:
+            for container in cf.check_container_status_and_get(cf.LATEST_IMAGE_NAME):
+                cf.stop_container(container)
+        except:
+            print('Unable to switch containers, redirecting traffic to production')
     SYSTEM_STATE = 0
 
 
