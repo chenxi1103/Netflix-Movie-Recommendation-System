@@ -7,6 +7,7 @@ sys.path.append('../kafka_mongodb_process')
 from RecommendModule import Model
 import mongodb_client
 from time import gmtime, strftime
+import pickle
 
 app = Flask(__name__)
 table = mongodb_client.get_today_query_table()
@@ -23,7 +24,7 @@ def inference(user_id):
     elif len(recommend_res) < 20:
         recommend_res.extend(m.contentModel.getSimPopularMovie(str(user_id)))
 
-    result = json.dumps(recommend_res)
+    result = json.dumps(movieid_adaptor(recommend_res))
     movies = []
     
     for recommend_movies in recommend_res:
@@ -45,8 +46,27 @@ def update_table(user_id, movies):
         newvalues = {"$set": {"movies": original, "query_time": current_time}}
         table.update_one(query, newvalues)
 
+def movieid_adaptor(recommend_res):
+    if not recommend_res:
+        return recommend_res
+    # content based recommendation
+    res = []
+    if len(recommend_res[0]) == 2:
+        for i in recommend_res:
+            if i[0] in tmidMovieIdDict:
+                res.append(tmidMovieIdDict[i[0]])
+    # collabrative filtering recommendation
+    else:
+        for i in recommend_res:
+            if i in tmidMovieIdDict:
+                res.append(tmidMovieIdDict[i])
+    return res
+
 if __name__ == "__main__":
     mainDir, expName = sys.argv[1], sys.argv[2]
     m = Model.ModelBasedModel(mainDir, expName)
     m.loadModel()
+    with open("tmid2name.pkl", 'rb') as fp:
+        tmidMovieIdDict = pickle.load(fp)
+
     app.run(host='0.0.0.0', port=8082)

@@ -15,7 +15,7 @@ Return: boolean. Determine whether certain percentages of users use the recommen
 """
 def eval_model(df, req_percentage=0.2, time_window=20):
     total_requests = df.shape[0]
-    return (num_following_req(df, time_window) / total_requests) >= req_percentage
+    return (num_following_req(df, time_window) / total_requests + 1) >= req_percentage
 
 def percentage_following_req(df, time_window):
     total_requests = df.shape[0]
