@@ -24,7 +24,7 @@ def inference(user_id):
     elif len(recommend_res) < 20:
         recommend_res.extend(m.contentModel.getSimPopularMovie(str(user_id)))
 
-    result = json.dumps(movieid_adaptor(recommend_res))
+    result = ','.join(movieid_adaptor(recommend_res))
     movies = []
     
     for recommend_movies in recommend_res:
