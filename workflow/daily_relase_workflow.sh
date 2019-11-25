@@ -36,10 +36,10 @@ image_name=${DailyActiveModelSetting}'-'${timeStamp}
 
 echo 'Building container:'$image_name
 sudo docker build -t web-service:$image_name .
-imageId=`sudo docker images -q web-service:${image_name}`
+imageId=`sudo docker images -q teama/web-service:${image_name}`
 echo 'Build docker image successfully, imageId is: '$imageId
 
-python3 workflow/send_new_release_to_supervisor.py 'Canary' 'web-service:'${image_name}
+python3 workflow/send_new_release_to_supervisor.py 'Canary' 'teama/web-service:'${image_name}
 
 python3 workflow/check_model_status.py
 if [ $? -eq 0 ]
