@@ -27,11 +27,8 @@ def read_movielog():
             if message_data is None:
                 continue
             # Update our maps
-            try:
-                get_and_update_user_info(message_data['user']['user_id'])
-                get_and_update_movie_info(message_data['movie']['id'])
-            except:
-                pass
+            get_and_update_user_info(message_data['user']['user_id'])
+            get_and_update_movie_info(message_data['movie']['id'])
 
             # Initialize the user, if it already exists ignore
             init_user_in_map(message_data['user']['user_id'])
@@ -56,6 +53,7 @@ def read_movielog():
 
             elif message_data['type'] == 'RR':
                 recommendation_list.append(message_data)
+
             # Unknown message, print it out and ignore
             else:
                 print(message_data)
@@ -65,6 +63,7 @@ def read_movielog():
             print('Exception occurred, continuing')
             print(message_data)
 
+        # Print out current status of maps and lists
         print_status()
 
         # Stop if an arbitary limit has been set
@@ -76,7 +75,19 @@ def read_movielog():
     # Dump all the data via pickle
     dump_data()
 
+    # Message to exit
     print('That\'s all, folks')
 
 
-read_movielog()
+'''
+Main method, currently executing the
+read_movielog() function
+'''
+
+
+def main():
+    read_movielog()
+
+
+if __name__ == "__main__":
+    main()

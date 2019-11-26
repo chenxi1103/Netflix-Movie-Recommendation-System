@@ -8,20 +8,28 @@ import pickle
 import urllib.parse
 import dateutil.parser
 
+# Config vars
 KAFKA_TIMEOUT = 10000
 URL_MOVIE_API = 'http://128.2.204.215:8080/movie/'
 URL_USER_API = 'http://128.2.204.215:8080/user/'
 
+# Maps and lists
 user_map = {}
 user_info = {}
 movie_info = {}
 rating_list = []
 recommendation_list = []
 
+'''
+Method to return a Kafka consumer, with an optional offset
+'''
+
 
 def get_consumer(topic, offset=-1):
+    # Check for offset, otherwise return consumer with group_id
     if offset == -1:
-        consumer = KafkaConsumer(topic, consumer_timeout_ms=KAFKA_TIMEOUT)
+        consumer = KafkaConsumer(
+            topic, group_id='MovieLog1', consumer_timeout_ms=KAFKA_TIMEOUT)
     else:
         consumer = KafkaConsumer(consumer_timeout_ms=KAFKA_TIMEOUT)
         consumer.assign([TopicPartition(topic, offset)])
@@ -29,38 +37,73 @@ def get_consumer(topic, offset=-1):
     return consumer
 
 
+'''
+Method to get a movie's info from the API, and update
+the internal map
+'''
+
+
 def get_and_update_movie_info(raw_code):
-    if raw_code in movie_info:
-        return movie_info[raw_code]
     try:
+        # Try to return from the internal map
+        if raw_code in movie_info:
+            return movie_info[raw_code]
+        # Check if the API returns the relevant data
         temp = requests.get(
             URL_MOVIE_API + raw_code).json()
+        # Detect if the response does not have the data
         if 'message' in temp:
             return None
+        # Add the movie to the map
         movie_info[raw_code] = temp
+        # Return the movie data
         return movie_info[raw_code]
     except:
+        # If an error occurs, return None
         return None
+
+
+'''
+Method to get a user's info from the API, and update
+the internal map
+'''
 
 
 def get_and_update_user_info(user_id):
-    if user_id in user_info:
-        return user_info[user_id]
     try:
+        # Try to return from the internal map
+        if user_id in user_info:
+            return user_info[user_id]
+        # Check if the API returns the relevant data
         temp = requests.get(URL_USER_API + user_id).json()
         if 'message' in temp:
             return None
+        # Add the user to the map
         user_info[user_id] = temp
+        # Return the user data
         return user_info[user_id]
     except:
+        # If an error occurs, return None
         return None
 
 
+'''
+Method to parse the raw message from the Kafka stream,
+decode, process and derive useful information and return
+a constructed JSON object containing the useful info
+'''
+
+
 def process_message(msg_str):
+    # Decode the message
     msg_str = str(msg_str.decode('utf-8')).lower()
+    # Split on the fields
     msg_split = msg_str.split(',')
+    # Construct the dict
     msg_data = {}
 
+    # Parse message based on its types:
+    # Set the type, and subsequently add the relevant fields
     if 'get /data' in msg_str:
         msg_data['type'] = 'DATA'
         msg_data['timestamp'] = msg_split[0].strip()
@@ -111,12 +154,22 @@ def process_message(msg_str):
 
         msg_data['recommendations'] = new_res
 
+    # Placeholder for unidentified messages
     else:
-        print('else')
+
+        print('Unable to classify message:')
         print(msg_str)
+        # Skip it from the consumer
         return None
 
+    # Return the parsed message
     return msg_data
+
+
+'''
+Method to initialize the user in
+the map, if not present already
+'''
 
 
 def init_user_in_map(id):
@@ -126,11 +179,23 @@ def init_user_in_map(id):
         user_map[id]['rated'] = []
 
 
+'''
+Method to print the current status
+of the internal maps and lists
+'''
+
+
 def print_status():
     print('Records: user data: ' + str(len(user_map)) + ' | user info: ' +
           str(len(user_info)) + ' | movie info: ' + str(len(movie_info)) +
           ' | rating list: ' + str(len(rating_list)) + ' | recommendation list: ' +
           str(len(recommendation_list)))
+
+
+'''
+Method to dump the data from the
+internal maps and lists
+'''
 
 
 def dump_data():
