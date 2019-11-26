@@ -18,12 +18,13 @@
     <h4 class="textCenter text-center" style="font-family: Yatra One">Monitor showing data here...</h4>
 </div>
 <div class="row">
+    <div class="col-md-1">&nbsp;</div>
     <div class="col-md-5">
         <div class="w3-container">
-            <h2 style="font-family: Yatra One; text-align: center">Recommend Movie Genre Frequency</h2>
-            <data style="text-align: center"></data>
-            <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
-            <script src="/static/js/barchart.js" type="text/javascript"></script>
+            <h2 style="font-family: Yatra One; text-align: center">Beta Recommend Movie Result</h2>
+            {% for data in data.beta %}
+                    <p>{{ data.timestamp }} Recommend to User {{ data.user_id }} with: <br> {{ data.result }}<br></p>
+                {% endfor %}
         </div>
     </div>
     <div class="col-md-1">
@@ -35,12 +36,41 @@
             <div class="col-md-2">&nbsp;</div>
             <div class="col-md-8">
                 {% for data in data.top_rate %}
-                <p>{{ data.query_time }} User: {{ data.user_id }} just rated {{ data.movie_name }} for {{ data.score }}</p>
+                    <p>{{ data.query_time }} User {{ data.user_id }} just rated {{ data.movie_name }}
+                        for {{ data.score }}</p>
                 {% endfor %}
             </div>
             <div class="col-md-2">&nbsp;</div>
         </div>
     </div>
+</div><br><br>
+<div class="row">
+    <div class="w3-container">
+        <h2 style="font-family: Yatra One; text-align: center">Recommend Movie Genre Frequency</h2>
+        <data style="text-align: center"></data>
+        <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+        <script src="/static/js/barchart.js" type="text/javascript"></script>
+    </div>
+</div><br><br>
+
+<div class="row">
+    <div class="col-md-1">&nbsp;</div>
+    <div class="col-md-5">
+            <h2 style="font-family: Yatra One; text-align: center">Alpha Recommend Movie Result</h2>
+            {% for adata in data.alpha %}
+                    <p>{{ adata.timestamp }} Recommend to User {{ adata.user_id }} with: <br> {{ adata.result }}<br></p>
+                {% endfor %}
+        </div>
+    <div class="col-md-5">
+            <h2 style="font-family: Yatra One; text-align: center">Charlie Recommend Movie Result</h2>
+            {% for cdata in data.charlie%}
+                    <p>{{ cdata.timestamp }} Recommend to User {{ cdata.user_id }} with: <br> {{ cdata.result }}<br></p>
+                {% endfor %}
+        </div>
+    <div class="col-md-1">
+        &nbsp;
+    </div>
 </div>
+
 <!--Reload the page every 1 seconds to show the newest rating information-->
-{#<script language="javascript">setTimeout("self.location.reload();",1000);</script>#}
+<script language="javascript">setTimeout("self.location.reload();",1000);</script>

@@ -1,3 +1,7 @@
+p{
+  font-family: Yatra One;
+  font-size: 10pt;
+}
 .axis path,
 .axis line {
   fill: none;
@@ -20,7 +24,7 @@
 .d3-tip {
   line-height: 1;
   font-weight: bold;
-  padding: 12px;
+  padding: 8px;
   background: rgba(0, 0, 0, 0.8);
   color: #fff;
   border-radius: 2px;
@@ -29,7 +33,7 @@
 .d3-tip:after {
   box-sizing: border-box;
   display: inline;
-  font-size: 10px;
+  font-size: 8px;
   width: 100%;
   line-height: 1;
   color: rgba(0, 0, 0, 0.8);
