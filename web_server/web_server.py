@@ -23,8 +23,10 @@ def inference(user_id):
         recommend_res = m.contentModel.getSimPopularMovie("-1")
     elif len(recommend_res) < 20:
         recommend_res.extend(m.contentModel.getSimPopularMovie(str(user_id)))
-
-    result = ','.join(movieid_adaptor(recommend_res))
+    movieid_list = movieid_adaptor(recommend_res)
+    if len(movieid_list) > 20:
+        movieid_list = movieid_list[:20]
+    result = ','.join(movieid_list)
     movies = []
     
     for recommend_movies in recommend_res:

@@ -23,7 +23,7 @@
 
   },
   "CONTENT_CONFIG":{
-    "REC_NUM":20,
+    "REC_NUM":50,
     "CONTENT_FEATURE_PATH":"/inference/feature/moviefeature.csv"
   }
 }
