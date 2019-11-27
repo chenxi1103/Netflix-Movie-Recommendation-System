@@ -149,7 +149,8 @@ def process_message(msg_str):
         new_res = []
         for r in res:
             r = r.replace('result: ', '')
-            r = urllib.parse.unquote_plus(r.strip())
+            r = r.strip()
+            # r = urllib.parse.unquote_plus(r.strip())
             new_res.append(r)
 
         msg_data['recommendations'] = new_res
