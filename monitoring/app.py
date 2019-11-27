@@ -75,5 +75,5 @@ def get_top_recommend(k):
     return alpha, beta, charlie
 
 if __name__ == '__main__':
-    app.run(debug = True)
+    app.run(host='0.0.0.0')
     get_top_rate(10)
