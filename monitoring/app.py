@@ -2,6 +2,8 @@ from flask import Flask, jsonify, render_template, request
 import pymongo
 import mongodb_client
 import csv
+import FeedbackLoopUtil
+
 
 app = Flask(__name__)
 rate_table = mongodb_client.get_rate_table()
@@ -9,6 +11,8 @@ beta_table = mongodb_client.get_beta_table()
 alpha_table = mongodb_client.get_alpha_table()
 charlie_table = mongodb_client.get_charlie_table()
 top_rate = {}
+feedback_loop = FeedbackLoopUtil.FeedbackLoopUtil('monitor-service')
+
 
 @app.route('/')
 def monitor():
@@ -30,8 +34,6 @@ def write_genre_freq():
         for gerne in freqs:
             tsv_writer.writerow([gerne, str(freqs[gerne])])
     return render_template('dashboard.html', data={'top_rate': top_rate})
-
-
 
 def get_top_rate(k):
     counter = 0
@@ -73,6 +75,12 @@ def get_top_recommend(k):
         else:
             break
     return alpha, beta, charlie
+
+@app.route('/feedback_update/', methods=['POST', 'GET'])
+def feedback_update():
+    res = feedback_loop.monitor_process(request.json)
+    print('server side print:',res)
+    return res
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')

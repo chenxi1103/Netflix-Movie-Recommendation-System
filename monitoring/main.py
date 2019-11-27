@@ -1,6 +1,8 @@
 from utilities import *
 import pprint
 from time import sleep
+import FeedbackLoopUtil
+
 
 '''
 Method to read from the kafka topic
@@ -53,6 +55,8 @@ def read_movielog():
 
             elif message_data['type'] == 'RR':
                 recommendation_list.append(message_data)
+                feedback_kafka.realtime_gather_recommendation(message_data)
+
 
             # Unknown message, print it out and ignore
             else:
@@ -65,6 +69,7 @@ def read_movielog():
 
         # Print out current status of maps and lists
         print_status()
+        feedback_kafka.realtime_process()
 
         # Stop if an arbitary limit has been set
         if DEBUG_LIMIT != -1:
@@ -85,9 +90,7 @@ read_movielog() function
 '''
 
 
-def main():
-    read_movielog()
-
 
 if __name__ == "__main__":
-    main()
+    feedback_kafka = FeedbackLoopUtil.FeedbackLoopUtil('kafka-realtime')
+    read_movielog()
