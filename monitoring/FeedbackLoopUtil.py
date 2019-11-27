@@ -5,7 +5,7 @@ import collections
 import pickle
 import os
 import numpy as np
-
+import threading
 
 class FeedbackLoopUtil:
     def __init__(self, mode):
@@ -30,9 +30,12 @@ class FeedbackLoopUtil:
             self.LONG_TIME_INTERVAL = 3600  # second
 
         elif mode == 'batch-process':
-            pass
+            self.BATCH_PROCESS_INTERVAL = 7200
+            t = threading.Timer(self.BATCH_PROCESS_INTERVAL, self.batch_process)
+            t.start()
 
         elif mode == 'monitor-service':
+            self.backup_msg = "backup_msg"
             self.latest_avg_movie_genre_ratio = pickle.load(open(self.batch_process_res_path, 'rb'))
             self.realtime_movie_genre = collections.defaultdict(collections.Counter)
         else:
@@ -99,12 +102,15 @@ class FeedbackLoopUtil:
                                 len(self.genre_cnt_dict) + total_cnt)
                     else:
                         res[team][movie_genre] = 1 / len(self.genre_cnt_dict)
-
+        print('batch_process_res')
         pickle.dump(res, open(self.batch_process_res_path, 'wb'))
         msg = {}
         msg['type'] = 'batch-process'
         msg = json.dumps(msg)
         requests.post(self.MONITOR_SERVICE_URL, json=msg)
+
+        t = threading.Timer(self.BATCH_PROCESS_INTERVAL, self.batch_process)
+        t.start()
         return res
 
     '''
@@ -120,9 +126,12 @@ class FeedbackLoopUtil:
             real_time_movie_ratio = self.calculate_ratio()
             different_score_res = self.calcualte_L2_difference(real_time_movie_ratio)
             res = self.generate_monitor_result(different_score_res, real_time_movie_ratio)
-            return json.dumps(res)
+            self.backup_msg = json.dumps(res)
+            return self.backup_msg
         elif msg['type'] == 'batch-process':
-            self.latest_avg_movie_genre_ratio = pickle.load(open(self.batch_process_res_path, 'rb'))
+            if os.path.getsize(self.batch_process_res_path) > 0:
+                self.latest_avg_movie_genre_ratio = pickle.load(open(self.batch_process_res_path, 'rb'))
+            return self.backup_msg
         else:
             raise AttributeError
 
