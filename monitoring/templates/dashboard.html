@@ -13,25 +13,24 @@
 <link href="https://www.w3schools.com/w3css/4/w3.css" rel="stylesheet">
 <body>
 <script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
 <div class="jumbopic jumbotron">
-    <h1 class="jumbText text-center" style="font-family: Yatra One">Hello 17645 Team A</h1>
+    <h1 class="jumbText text-center" style="font-family: Lobster">Hello 17645 Team A</h1>
     <h4 class="textCenter text-center" style="font-family: Yatra One">Monitor showing data here...</h4>
 </div>
 <div class="row">
     <div class="col-md-1">&nbsp;</div>
     <div class="col-md-5">
-        <div class="w3-container">
-            <h2 style="font-family: Yatra One; text-align: center">Beta Recommend Movie Result</h2>
+            <h1 style="font-family: Lobster; text-align: center">Beta Recommend Movie Result</h1><br>
             {% for data in data.beta %}
                     <p>{{ data.timestamp }} Recommend to User {{ data.user_id }} with: <br> {{ data.result }}<br></p>
                 {% endfor %}
-        </div>
     </div>
     <div class="col-md-1">
         &nbsp;
     </div>
     <div class="col-md-6">
-        <h2 style="font-family: Yatra One; text-align: center">Real-Time Rating Information</h2><br>
+        <h1 style="font-family: Lobster; text-align: center">Real-Time Rating Information</h1><br>
         <div class="row">
             <div class="col-md-2">&nbsp;</div>
             <div class="col-md-8">
@@ -46,23 +45,38 @@
 </div><br><br>
 <div class="row">
     <div class="w3-container">
-        <h2 style="font-family: Yatra One; text-align: center">Recommend Movie Genre Frequency</h2>
+        <h1 style="font-family: Lobster; text-align: center">Alpha Recommend Movie Genre Frequency</h1>
+        <li style="text-align: center"></li>
+        <script src="/static/js/barchart_alpha.js" type="text/javascript"></script>
+        <h3 style="text-align: center; color: red; font-family: Chalkboard">Difference Score:  {{ data.difference_score.teama }}</h3>
+    </div><br><br>
+
+    <div class="w3-container">
+        <h1 style="font-family: Lobster; text-align: center">Beta Recommend Movie Genre Frequency</h1>
         <data style="text-align: center"></data>
-        <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
         <script src="/static/js/barchart.js" type="text/javascript"></script>
-    </div>
+        <h3 style="text-align: center; color: red; font-family: Chalkboard">Difference Score:  {{ data.difference_score.teamb }}</h3>
+    </div><br><br>
+
+    <div class="w3-container">
+        <h1 style="font-family: Lobster; text-align: center">Charlie Recommend Movie Genre Frequency</h1>
+        <ol style="text-align: center"></ol>
+        <script src="/static/js/barchart_charlie.js" type="text/javascript"></script>
+        <h3 style="text-align: center; color: red; font-family: Chalkboard">Difference Score:  {{ data.difference_score.teamc }}</h3>
+    </div><br>
+
 </div><br><br>
 
 <div class="row">
     <div class="col-md-1">&nbsp;</div>
     <div class="col-md-5">
-            <h2 style="font-family: Yatra One; text-align: center">Alpha Recommend Movie Result</h2>
+            <h1 style="font-family: Lobster; text-align: center">Alpha Recommend Movie Result</h1>
             {% for adata in data.alpha %}
                     <p>{{ adata.timestamp }} Recommend to User {{ adata.user_id }} with: <br> {{ adata.result }}<br></p>
                 {% endfor %}
         </div>
     <div class="col-md-5">
-            <h2 style="font-family: Yatra One; text-align: center">Charlie Recommend Movie Result</h2>
+            <h1 style="font-family: Lobster; text-align: center">Charlie Recommend Movie Result</h1>
             {% for cdata in data.charlie%}
                     <p>{{ cdata.timestamp }} Recommend to User {{ cdata.user_id }} with: <br> {{ cdata.result }}<br></p>
                 {% endfor %}
@@ -73,4 +87,4 @@
 </div>
 
 <!--Reload the page every 1 seconds to show the newest rating information-->
-<script language="javascript">setTimeout("self.location.reload();",1000);</script>
+{#<script language="javascript">setTimeout("self.location.reload();",1000);</script>#}

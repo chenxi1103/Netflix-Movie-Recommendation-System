@@ -26,24 +26,24 @@ var tip = d3.tip()
     return "<strong>Frequency:</strong> <span style='color:red'>" + d.frequency + "</span>";
   })
 
-var svg_b = d3.select("data").append("svg")
+var svg = d3.select("ol").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-svg_b.call(tip);
+svg.call(tip);
 
-d3.tsv("/static/data/data_b.tsv", type, function(error, data) {
+d3.tsv("/static/data/data_c.tsv", type, function(error, data) {
   x.domain(data.map(function(d) { return d.letter; }));
   y.domain([0, d3.max(data, function(d) { return d.frequency; })]);
 
-  svg_b.append("g")
+  svg.append("g")
       .attr("class", "x axis")
       .attr("transform", "translate(0," + height + ")")
       .call(xAxis);
 
-  svg_b.append("g")
+  svg.append("g")
       .attr("class", "y axis")
       .call(yAxis)
     .append("text")
@@ -53,7 +53,7 @@ d3.tsv("/static/data/data_b.tsv", type, function(error, data) {
       .style("text-anchor", "end")
       .text("Frequency");
 
-  svg_b.selectAll(".bar")
+  svg.selectAll(".bar")
       .data(data)
     .enter().append("rect")
       .attr("class", "bar")

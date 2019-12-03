@@ -9,7 +9,7 @@ import urllib.parse
 import dateutil.parser
 
 # Config vars
-KAFKA_TIMEOUT = 100000
+KAFKA_TIMEOUT = 1000
 URL_MOVIE_API = 'http://128.2.204.215:8080/movie/'
 URL_USER_API = 'http://128.2.204.215:8080/user/'
 
