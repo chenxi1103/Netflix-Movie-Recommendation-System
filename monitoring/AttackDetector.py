@@ -13,6 +13,7 @@ import collections
 import requests
 import json
 import pickle
+import time
 import numpy as np
 
 class AttackDetector:
@@ -21,25 +22,42 @@ class AttackDetector:
         super().__init__()
         self.N = N
         self.ENDPOINT = 'http://0.0.0.0:5000/attack_update/'
+        self.BATCH_EVERY_SECOND = 5
+        self.timer = time.time()
         
         self.movie_to_ratings = collections.defaultdict(list)
+
+        # Since we do not have a database here, I use this dict to illustrate the point.
+        self.database = collections.defaultdict(list)
+
         self.movie_info = pickle.load(open('feedback_detection_data/movie.info', 'rb'))
 
     def add_realtime(self, rating_msg):
         l = self.movie_to_ratings[rating_msg['movie']]
         if len(l) == N:
-            l.pop(0)
+            self.database[rating_msg['movie']].append(l.pop(0))
         l.append(float(rating_msg['rating']))
     
     def process_realtime(self):
-        messages = []
-        for movie_id, ratings in self.movie_to_ratings.items():
+        timestamp = time.time()
+        if timestamp - self.timer >= self.BATCH_EVERY_SECOND:
+            messages = self.check_movies_attack(self.database)
+            messages['type'] = 'batch'
+            requests.post(self.ENDPOINT, json=messages)
+            self.timer = timestamp
+        messages = self.check_movies_attack(self.movie_to_ratings)
+        messages['type'] = 'realtime'
+        requests.post(self.ENDPOINT, json=messages)
+
+    def check_movies_attack(self, dictionary):
+        messages = {'messages': [], 'type': 'undefined'}
+        for movie_id, ratings in dictionary.items():
             if len(ratings) == self.N:
                 # Now compare.
                 boolean, msg = self.is_attack(movie_id)
                 if boolean:
-                    messages.append(msg)
-        requests.post(self.ENDPOINT, json=messages)
+                    messages['messages'].append(msg)
+        return messages
 
     """
     Detect whether a movie is under attack using chebyshev's theorem.
