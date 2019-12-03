@@ -95,73 +95,79 @@ a constructed JSON object containing the useful info
 
 
 def process_message(msg_str):
-    # Decode the message
-    msg_str = str(msg_str.decode('utf-8')).lower()
-    # Split on the fields
-    msg_split = msg_str.split(',')
-    # Construct the dict
-    msg_data = {}
+    # Try to handle malformed messages
+    try:
+        # Decode the message
+        msg_str = str(msg_str.decode('utf-8')).lower()
+        # Split on the fields
+        msg_split = msg_str.split(',')
+        # Construct the dict
+        msg_data = {}
 
-    # Parse message based on its types:
-    # Set the type, and subsequently add the relevant fields
-    if 'get /data' in msg_str:
-        msg_data['type'] = 'DATA'
-        msg_data['timestamp'] = msg_split[0].strip()
-        user_info = get_and_update_user_info(msg_split[1].strip())
-        if user_info is None:
-            return None
-        msg_data['user'] = user_info
-        movie_info = get_and_update_movie_info(
-            msg_split[2].split('/')[3].strip())
-        if movie_info is None:
-            return None
-        msg_data['movie'] = movie_info
-        msg_data['movie_part'] = msg_split[2].split(
-            '/')[4].strip().split('.')[0]
+        # Parse message based on its types:
+        # Set the type, and subsequently add the relevant fields
+        if 'get /data' in msg_str:
+            msg_data['type'] = 'DATA'
+            msg_data['timestamp'] = msg_split[0].strip()
+            user_info = get_and_update_user_info(msg_split[1].strip())
+            if user_info is None:
+                return None
+            msg_data['user'] = user_info
+            movie_info = get_and_update_movie_info(
+                msg_split[2].split('/')[3].strip())
+            if movie_info is None:
+                return None
+            msg_data['movie'] = movie_info
+            msg_data['movie_part'] = msg_split[2].split(
+                '/')[4].strip().split('.')[0]
 
-    elif 'get /rate' in msg_str:
-        msg_data['type'] = 'RATING'
-        msg_data['timestamp'] = msg_split[0].strip()
-        user_info = get_and_update_user_info(msg_split[1].strip())
-        if user_info is None:
-            return None
-        msg_data['user'] = user_info
-        movie_info = get_and_update_movie_info(
-            msg_split[2].split('/')[2].split('=')[0].strip())
-        if movie_info is None:
-            return None
-        msg_data['movie'] = movie_info
-        msg_data['rating'] = int(urllib.parse.unquote_plus(
-            msg_split[2].split('/')[2].split('=')[1].strip()))
+        elif 'get /rate' in msg_str:
+            msg_data['type'] = 'RATING'
+            msg_data['timestamp'] = msg_split[0].strip()
+            user_info = get_and_update_user_info(msg_split[1].strip())
+            if user_info is None:
+                return None
+            msg_data['user'] = user_info
+            movie_info = get_and_update_movie_info(
+                msg_split[2].split('/')[2].split('=')[0].strip())
+            if movie_info is None:
+                return None
+            msg_data['movie'] = movie_info
+            msg_data['rating'] = int(urllib.parse.unquote_plus(
+                msg_split[2].split('/')[2].split('=')[1].strip()))
 
-    elif 'recommendation request' in msg_str:
-        msg_data['status'] = msg_split[3].strip().split(' ')[1].strip()
-        if msg_data['status'] != '200':
-            return None
-        msg_data['team'] = msg_split[2].split(
-            ' ')[2].split('.')[0].split('-')[1]
-        msg_data['type'] = 'RR'
-        msg_data['timestamp'] = msg_split[0].strip()
-        msg_data['user'] = {}
-        msg_data['user']['user_id'] = msg_split[1].strip()
+        elif 'recommendation request' in msg_str:
+            msg_data['status'] = msg_split[3].strip().split(' ')[1].strip()
+            if msg_data['status'] != '200':
+                return None
+            msg_data['team'] = msg_split[2].split(
+                ' ')[2].split('.')[0].split('-')[1]
+            msg_data['type'] = 'RR'
+            msg_data['timestamp'] = msg_split[0].strip()
+            msg_data['user'] = {}
+            msg_data['user']['user_id'] = msg_split[1].strip()
 
-        res = msg_split[4:]
-        new_res = []
-        for r in res:
-            r = r.replace('result: ', '')
-            r = r.strip()
-            # r = urllib.parse.unquote_plus(r.strip())
-            new_res.append(r)
+            res = msg_split[4:]
+            new_res = []
+            for r in res:
+                r = r.replace('result: ', '')
+                r = r.strip()
+                # r = urllib.parse.unquote_plus(r.strip())
+                new_res.append(r)
 
-        msg_data['recommendations'] = new_res
+            msg_data['recommendations'] = new_res
 
-    # Placeholder for unidentified messages
-    else:
+        # Placeholder for unidentified messages
+        else:
 
-        print('Unable to classify message:')
-        print(msg_str)
-        # Skip it from the consumer
-        return None
+            print('Unable to classify message:')
+            print(msg_str)
+            # Skip it from the consumer
+            msg_data = None
+    except:
+        # Return None for a message that
+        # does not obey expected format
+        msg_data = None
 
     # Return the parsed message
     return msg_data
