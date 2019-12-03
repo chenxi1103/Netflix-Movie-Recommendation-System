@@ -82,6 +82,12 @@ def feedback_update():
     print('server side print:',res)
     return res
 
+@app.route('/attack_update/', methods=['POST', 'GET'])
+def attack_update():
+    res = request.json
+    print('[Attack Detector]server side print:', res)
+    return 'Something from /attack_update'
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
     get_top_rate(10)

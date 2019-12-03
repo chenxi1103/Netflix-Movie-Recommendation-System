@@ -2,6 +2,7 @@ from utilities import *
 import pprint
 from time import sleep
 import FeedbackLoopUtil
+from AttackDetector import AttackDetector
 
 
 '''
@@ -55,6 +56,7 @@ def read_movielog():
                          ['user_id']]['rated'].append(data)
                 data['user_id'] = message_data['user']['user_id']
                 rating_list.append(data)
+                attack_detector.add_realtime(message_data)
 
             elif message_data['type'] == 'RR':
                 recommendation_list.append(message_data)
@@ -73,6 +75,7 @@ def read_movielog():
         # Print out current status of maps and lists
         print_status()
         feedback_kafka.realtime_process()
+        attack_detector.process_realtime()
 
         # Stop if an arbitary limit has been set
         if DEBUG_LIMIT != -1:
@@ -96,4 +99,5 @@ read_movielog() function
 
 if __name__ == "__main__":
     feedback_kafka = FeedbackLoopUtil.FeedbackLoopUtil('kafka-realtime')
+    attack_detector = AttackDetector(20)
     read_movielog()
