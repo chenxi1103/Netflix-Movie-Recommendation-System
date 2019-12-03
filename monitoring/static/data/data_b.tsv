@@ -1,21 +1,21 @@
 letter	frequency
-Adventure	0.12
-Documentary	0.15
-War	0.18
-Family	0.45
-Thriller	0.25
-Drama	0.65
-Science Fiction	0.62
-Mystery	0.86
-Western	0.34
-Romance	0.27
-Action	0.47
-Animation	0.87
-Fantasy	0.24
-Music	0.64
-Comedy	0.13
-Foreign	0.74
-History	0.42
-TV Movie	0.35
-Crime	0.27
-Horror	0.74
+Drama	0.16586442037705576
+Horror	0.019053349378259126
+Thriller	0.12113918973124749
+Romance	0.027677496991576414
+Comedy	0.04773365423184918
+Documentary	0.01022864019253911
+War	0.029281989570798236
+History	0.024067388688327317
+Adventure	0.08022462896109106
+Action	0.1355796229442439
+Science Fiction	0.07160048134777376
+Fantasy	0.044524669073405534
+Animation	0.03289209787404733
+Family	0.06417970316887285
+Western	0.020858403529883673
+Crime	0.06578419574809466
+TV Movie	0.05
+Foreign	0.05
+Mystery	0.03870838347372643
+Music	0.05

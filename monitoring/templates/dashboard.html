@@ -21,6 +21,32 @@
 <div class="row">
     <div class="col-md-1">&nbsp;</div>
     <div class="col-md-5">
+    {% if data.realtime_flag == 'Y' %}
+        <h1 style="color: red; font-family: Lobster; text-align: center">RealTime Attack Detected!!!</h1>
+            {% for data in data.realtime_attack %}
+            <p style="color: red">{{ data.movie_id }} {{ data.vote_average }} {{ data.avg_last_N }} {{ data.std_last_N }} {{ data.N }}</p>
+            {% endfor %}
+        </div>
+        {% elif data.realtime_flag == 'N' %}
+        <h1 style="color: blue; font-family: Lobster; text-align: center">No RealTime Attack Detected</h1>
+    {% endif %}
+    </div>
+    <div class="col-md-1">&nbsp;</div>
+    <div class="col-md-5">
+        {% if data.batch_flag == 'Y' %}
+        <h1 style="color: red; font-family: Lobster">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Batch Attack Detected!!!</h1>
+            {% for data in data.realtime_attack %}
+            <p style="color: red">{{ data.movie_id }} {{ data.vote_average }} {{ data.avg_last_N }} {{ data.std_last_N }} {{ data.N }}</p>
+            {% endfor %}
+        </div>
+        {% elif data.batch_flag == 'N' %}
+        <h1 style="color: blue; font-family: Lobster">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;No Batch Attack Detected</h1>
+    {% endif %}
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-1">&nbsp;</div>
+    <div class="col-md-5">
             <h1 style="font-family: Lobster; text-align: center">Beta Recommend Movie Result</h1><br>
             {% for data in data.beta %}
                     <p>{{ data.timestamp }} Recommend to User {{ data.user_id }} with: <br> {{ data.result }}<br></p>
@@ -87,4 +113,5 @@
 </div>
 
 <!--Reload the page every 1 seconds to show the newest rating information-->
-{#<script language="javascript">setTimeout("self.location.reload();",1000);</script>#}
+<script language="javascript">setTimeout("self.location.reload();",5000);</script>
+</body>
