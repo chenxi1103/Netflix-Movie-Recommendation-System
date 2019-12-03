@@ -10,6 +10,8 @@ alpha_table = mongodb_client.get_alpha_table()
 charlie_table = mongodb_client.get_charlie_table()
 top_rate = {}
 
+feedback_loop = FeedbackLoopUtil.FeedbackLoopUtil('monitor-service')
+
 
 @app.route('/')
 def monitor():
@@ -105,6 +107,12 @@ def attack_update():
     res = request.json
     print('[Attack Detector]server side print:', res)
     return 'Something from /attack_update'
+
+@app.route('/feedback_update/', methods=['POST', 'GET'])
+def feedback_update():
+    res = feedback_loop.monitor_process(request.json)
+    print('server side print:',res)
+    return res
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
