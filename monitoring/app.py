@@ -100,6 +100,12 @@ def get_top_recommend(k):
     return alpha, beta, charlie
 
 
+@app.route('/attack_update/', methods=['POST', 'GET'])
+def attack_update():
+    res = request.json
+    print('[Attack Detector]server side print:', res)
+    return 'Something from /attack_update'
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
     get_top_rate(10)
