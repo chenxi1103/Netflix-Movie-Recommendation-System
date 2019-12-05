@@ -71,7 +71,10 @@ class FeedbackLoopUtil:
             if msg:
                 msg['type'] = 'kafka-realtime'
                 msg = json.dumps(msg)
-                requests.post(self.MONITOR_SERVICE_URL, json=msg)
+                try:
+                    requests.post(self.MONITOR_SERVICE_URL, json=msg)
+                except:
+                    pass
                 self.incremental_recommend_dict = collections.defaultdict(dict)
 
         # dump accumlated data per day
@@ -107,7 +110,10 @@ class FeedbackLoopUtil:
         msg = {}
         msg['type'] = 'batch-process'
         msg = json.dumps(msg)
-        requests.post(self.MONITOR_SERVICE_URL, json=msg)
+        try:
+            requests.post(self.MONITOR_SERVICE_URL, json=msg)
+        except:
+            pass
 
         t = threading.Timer(self.BATCH_PROCESS_INTERVAL, self.batch_process)
         t.start()
@@ -122,7 +128,7 @@ class FeedbackLoopUtil:
         if msg['type'] == 'kafka-realtime':
             for key in msg:
                 if key != 'type':
-                    self.realtime_movie_genre[key] += collections.Counter(msg[key]['data'])
+                    self.realtime_movie_genre[key] = collections.Counter(msg[key]['data'])
             real_time_movie_ratio = self.calculate_ratio()
             different_score_res = self.calcualte_L2_difference(real_time_movie_ratio)
             res = self.generate_monitor_result(different_score_res, real_time_movie_ratio)

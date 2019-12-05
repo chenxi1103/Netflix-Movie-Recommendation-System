@@ -47,7 +47,10 @@ class AttackDetector:
             self.timer = timestamp
         messages = self.check_movies_attack(self.movie_to_ratings)
         messages['type'] = 'realtime'
-        requests.post(self.ENDPOINT, json=messages)
+        try:
+            requests.post(self.ENDPOINT, json=messages)
+        except:
+            pass
 
     def check_movies_attack(self, dictionary):
         messages = {'messages': [], 'type': 'undefined'}
