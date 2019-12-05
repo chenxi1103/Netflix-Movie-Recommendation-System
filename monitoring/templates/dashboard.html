@@ -22,25 +22,23 @@
     <div class="col-md-1">&nbsp;</div>
     <div class="col-md-5">
     {% if data.realtime_flag == 'Y' %}
-        <h1 style="color: red; font-family: Lobster; text-align: center">RealTime Attack Detected!!!</h1>
+        <h1 style="color: red; font-family: Lobster; text-align: center">Attack Detected By RealTime Data!!!</h1>
             {% for data in data.realtime_attack %}
-            <p style="color: red">{{ data.movie_id }} {{ data.vote_average }} {{ data.avg_last_N }} {{ data.std_last_N }} {{ data.N }}</p>
+            <p style="color: red; text-align: center">Movie Id: {{ data.movie_id }} - AVG. VOTE: {{ data.vote_average }} - MEAN: {{ data.avg_last_N }} - STD: {{ data.std_last_N }} - #Last Data: {{ data.N }}</p>
             {% endfor %}
-        </div>
         {% elif data.realtime_flag == 'N' %}
-        <h1 style="color: blue; font-family: Lobster; text-align: center">No RealTime Attack Detected</h1>
+        <h1 style="color: blue; font-family: Lobster; text-align: center">No Attack Detected Detected by RealTime Data</h1>
     {% endif %}
     </div>
     <div class="col-md-1">&nbsp;</div>
     <div class="col-md-5">
         {% if data.batch_flag == 'Y' %}
-        <h1 style="color: red; font-family: Lobster">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Batch Attack Detected!!!</h1>
+        <h1 style="color: red; font-family: Lobster">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Attack Detected By Batch Data!!!</h1>
             {% for data in data.realtime_attack %}
-            <p style="color: red">{{ data.movie_id }} {{ data.vote_average }} {{ data.avg_last_N }} {{ data.std_last_N }} {{ data.N }}</p>
+	    <p style="color: red; text-align: center">Movie Id: {{ data.movie_id }} - AVG. VOTE: {{ data.vote_average }} - MEAN: {{ data.avg_last_N }} - STD: {{ data.std_last_N }} - #Last Data: {{ data.N }}</p>
             {% endfor %}
-        </div>
         {% elif data.batch_flag == 'N' %}
-        <h1 style="color: blue; font-family: Lobster">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;No Batch Attack Detected</h1>
+        <h1 style="color: blue; font-family: Lobster">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;No Attack Detected By Batch Data</h1>
     {% endif %}
     </div>
 </div>

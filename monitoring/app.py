@@ -49,6 +49,7 @@ def get_rate():
 @app.route('/attack_update/', methods=['POST', 'GET'])
 def attack_update():
     res = request.json
+    print(res)
     messages = res['messages']
     type = res['type']
     if len(messages) > 0 and type == 'realtime':
