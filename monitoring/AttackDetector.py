@@ -29,6 +29,7 @@ class AttackDetector:
 
         # Since we do not have a database here, I use this dict to illustrate the point.
         self.database = collections.defaultdict(list)
+        self.num_rows_database = 0
 
         self.movie_info = pickle.load(open('feedback_detection_data/movie.info', 'rb'))
 
@@ -36,6 +37,7 @@ class AttackDetector:
         l = self.movie_to_ratings[rating_msg['movie']]
         if len(l) == N:
             self.database[rating_msg['movie']].append(l.pop(0))
+            self.num_rows_database += 1
         l.append(float(rating_msg['rating']))
     
     def process_realtime(self):
@@ -43,10 +45,12 @@ class AttackDetector:
         if timestamp - self.timer >= self.BATCH_EVERY_SECOND:
             messages = self.check_movies_attack(self.database)
             messages['type'] = 'batch'
+            messages['N'] = self.num_rows_database
             requests.post(self.ENDPOINT, json=messages)
             self.timer = timestamp
         messages = self.check_movies_attack(self.movie_to_ratings)
         messages['type'] = 'realtime'
+        messages['N'] = self.N
         requests.post(self.ENDPOINT, json=messages)
 
     def check_movies_attack(self, dictionary):
@@ -73,7 +77,7 @@ class AttackDetector:
         avg = np.mean(self.movie_to_ratings[movie_id])
         std = np.std(self.movie_to_ratings[movie_id])
         if imdb_vote > avg + 2 * std or imdb_vote < avg - 2 * std:
-            return True, {'movie_id': movie_id, 'vote_average': imdb_vote, 'avg_last_N': avg, 'std_last_N': std, 'N': self.N}
+            return True, {'movie_id': movie_id, 'vote_average': imdb_vote, 'avg_last_N': avg, 'std_last_N': std}
         return False, {}
 
     
