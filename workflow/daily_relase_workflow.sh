@@ -39,14 +39,14 @@ sudo docker build -t teama/web-service:$image_name .
 imageId=`sudo docker images -q teama/web-service:${image_name}`
 echo 'Build docker image successfully, imageId is: '$imageId
 
-python3 workflow/send_new_release_to_supervisor.py 'Canary' 'teama/web-service:'${image_name}
-sudo docker tag 'teama/web-service:'${image_name} 'teama/web-service:latest'
-
-python3 workflow/check_model_status.py
-if [ $? -eq 0 ]
-then
-   echo 'Canary Test Succeeded! Model is Ready to Release!'
-else
-   echo 'Canary Test Failed! Model is going to rollback!'
-   exit 1 
-fi
+#python3 workflow/send_new_release_to_supervisor.py 'Canary' 'teama/web-service:'${image_name}
+#sudo docker tag 'teama/web-service:'${image_name} 'teama/web-service:latest'
+#
+#python3 workflow/check_model_status.py
+#if [ $? -eq 0 ]
+#then
+#   echo 'Canary Test Succeeded! Model is Ready to Release!'
+#else
+#   echo 'Canary Test Failed! Model is going to rollback!'
+#   exit 1 
+#fi
