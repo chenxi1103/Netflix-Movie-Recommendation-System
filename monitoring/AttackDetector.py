@@ -43,22 +43,22 @@ class AttackDetector:
     def process_realtime(self):
         timestamp = time.time()
         if timestamp - self.timer >= self.BATCH_EVERY_SECOND:
-            messages = self.check_movies_attack(self.database)
+            messages = self.check_movies_attack(self.database, True)
             messages['type'] = 'batch'
             messages['N'] = self.num_rows_database
             requests.post(self.ENDPOINT, json=messages)
             self.timer = timestamp
-        messages = self.check_movies_attack(self.movie_to_ratings)
+        messages = self.check_movies_attack(self.movie_to_ratings, False)
         messages['type'] = 'realtime'
         messages['N'] = self.N
         requests.post(self.ENDPOINT, json=messages)
 
-    def check_movies_attack(self, dictionary):
+    def check_movies_attack(self, dictionary, is_batch):
         messages = {'messages': [], 'type': 'undefined'}
         for movie_id, ratings in dictionary.items():
             if len(ratings) == self.N:
                 # Now compare.
-                boolean, msg = self.is_attack(movie_id)
+                boolean, msg = self.is_attack(movie_id, is_batch)
                 if boolean:
                     messages['messages'].append(msg)
         return messages
@@ -66,7 +66,7 @@ class AttackDetector:
     """
     Detect whether a movie is under attack using chebyshev's theorem.
     """
-    def is_attack(self, movie_id):
+    def is_attack(self, movie_id, is_batch):
         if movie_id not in self.movie_info:
             return False, {}
         imdb_vote = float(self.movie_info[movie_id]['vote_average'])
@@ -77,7 +77,7 @@ class AttackDetector:
         avg = np.mean(self.movie_to_ratings[movie_id])
         std = np.std(self.movie_to_ratings[movie_id])
         if imdb_vote > avg + 2 * std or imdb_vote < avg - 2 * std:
-            return True, {'movie_id': movie_id, 'vote_average': imdb_vote, 'avg_last_N': avg, 'std_last_N': std}
+            return True, {'movie_id': movie_id, 'vote_average': imdb_vote, 'avg_last_N': avg, 'std_last_N': std, 'N': self.num_rows_database if is_batch else self.N}
         return False, {}
 
     
