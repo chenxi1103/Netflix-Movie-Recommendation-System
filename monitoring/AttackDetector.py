@@ -51,7 +51,10 @@ class AttackDetector:
         messages = self.check_movies_attack(self.movie_to_ratings, False)
         messages['type'] = 'realtime'
         messages['N'] = self.N
-        requests.post(self.ENDPOINT, json=messages)
+        try:
+            requests.post(self.ENDPOINT, json=messages)
+        except:
+            pass
 
     def check_movies_attack(self, dictionary, is_batch):
         messages = {'messages': [], 'type': 'undefined'}
