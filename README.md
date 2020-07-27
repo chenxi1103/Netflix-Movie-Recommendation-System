@@ -1,4 +1,4 @@
-# 17645TeamA
+# Complex Netflix Movie Recommendation System
 ## Summary
 Developed a full-stack movie recommendation system with
 1. RESTful API to provide clients with 20 recommended movies. Determine the hit rate by collecting clients’ watching data to see if they watch the recommended movies afterwards.
