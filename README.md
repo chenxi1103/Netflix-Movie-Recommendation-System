@@ -1,4 +1,13 @@
 # 17645TeamA
+## Summary
+Developed a full-stack movie recommendation system with
+1. RESTful API to provide clients with 20 recommended movies. Determine the hit rate by collecting clients’ watching data to see if they watch the recommended movies afterwards.
+2. Continuous Integration for pipeline code. Automated daily model quality evaluation and system supervision with Jinkens.
+3. Designed and built the infrastructure that can incrementally deploy new versions of recommendation service triggered by canary release and A/B testing.
+4. Integrated with feedback loops mechanism to detect potential positive or negative feedback loops to further identify potential adversarial attacks. Implemented the monitoring and detection by applying lambda architecture to combine the stream and batch processing results to detect problematic behaviors.
+5. Comprehensive data quality control on raw data received from Kafka stream, especially focus on data schema issues, missing data, and duplicated data.
+6. Monitoring Dashboard UI with D3.js. Developed the whole web server by Flask.
+7. Containerized the whole service by Docker.
 ## Code Structure Overview
 ![alt text](https://github.com/chenxi1103/17645TeamA/blob/master/README_img/CodeStructure.png "Project Code Structure")
 
