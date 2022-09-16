@@ -28,7 +28,7 @@ lazr.restfulclient==0.14.2
 lazr.uri==1.0.3
 louis==3.8.0
 macaroonbakery==1.2.1
-Mako==1.0.7
+Mako==1.2.2
 MarkupSafe==1.1.0
 netifaces==0.10.4
 oauthlib==2.1.0
